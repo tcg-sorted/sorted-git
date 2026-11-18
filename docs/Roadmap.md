@@ -29,7 +29,7 @@ direction.
 - [x] External editor: detected editors (VS Code, Cursor, Zed, Sublime, JetBrains, Xcode, GNOME Builder…) from the toolbar, palette and file menus
 - [x] Pull with rebase following `pull.rebase`, a merge/rebase choice per pull, and a status bar note of the last fetch
 - [x] Fork workflow: "Fast-forward current to this" in the branch menus (enabled only when the branch is strictly behind), every remote fetched on each tab switch, "Open in browser" on a remote and from the palette
-- [x] Provider avatars from the connected account when Gravatar has none; the AI provider and its last connection test in the status bar
+- [x] Provider avatars from the connected account (the only avatar source); the AI provider and its last connection test in the status bar
 - [x] Upstream workflow: add a remote from the sidebar, pull requests from a fork into its upstream (GitHub, Bitbucket Cloud), a remembered clone folder, a right-click menu in the terminal
 - [x] Windows: SSH remotes with ed25519 and ECDSA host keys (libssh2 built on OpenSSL)
 - [x] Fonts: interface, code and terminal fonts picked from what is installed, each shown in its own face, terminal size, one-click reset
