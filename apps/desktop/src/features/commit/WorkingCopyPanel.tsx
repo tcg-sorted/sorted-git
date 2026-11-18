@@ -1326,7 +1326,7 @@ export function WorkingCopyPanel() {
             <DropdownMenuItem
               onClick={() =>
                 void ipc
-                  .openPath(`${path}/${fileMenu.file.path}`)
+                  .openPath(path, fileMenu.file.path)
                   .catch((error) =>
                     toast.error(
                       `Could not open the file: ${(error as { message?: string }).message ?? error}`,

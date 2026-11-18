@@ -1230,7 +1230,7 @@ export function CommitDetails({
               disabled={fileMenu.deleted}
               onClick={() =>
                 void ipc
-                  .openPath(`${repoPath}/${fileMenu.path}`)
+                  .openPath(repoPath, fileMenu.path)
                   .catch((error) =>
                     toast.error(`Could not open the file: ${(error as { message?: string }).message ?? error}`),
                   )

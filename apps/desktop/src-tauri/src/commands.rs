@@ -374,29 +374,86 @@ pub async fn write_file(path: String, file: String, content: String) -> AppResul
     .await
 }
 
+pub(crate) fn file_inside_repo(
+    repo: &std::path::Path,
+    file: &str,
+) -> AppResult<std::path::PathBuf> {
+    let relative = std::path::Path::new(file);
+    let plain = relative
+        .components()
+        .all(|c| matches!(c, std::path::Component::Normal(_)));
+    if file.is_empty() || !plain {
+        return Err(crate::error::AppError::other(format!(
+            "{file} is not a path inside the repository"
+        )));
+    }
+    let root = std::fs::canonicalize(repo)?;
+    let target = std::fs::canonicalize(root.join(relative))?;
+    if !target.starts_with(&root) || !target.is_file() {
+        return Err(crate::error::AppError::other(format!(
+            "{file} is not a file inside the repository"
+        )));
+    }
+    Ok(target)
+}
+
+#[cfg(target_os = "windows")]
+fn without_verbatim_prefix(path: &std::path::Path) -> std::path::PathBuf {
+    let text = path.to_string_lossy();
+    if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
+        std::path::PathBuf::from(format!(r"\\{rest}"))
+    } else if let Some(rest) = text.strip_prefix(r"\\?\") {
+        std::path::PathBuf::from(rest)
+    } else {
+        path.to_path_buf()
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn open_with_default_app(target: &std::path::Path) -> AppResult<()> {
+    use std::os::windows::ffi::OsStrExt;
+    use windows_sys::Win32::UI::Shell::ShellExecuteW;
+    const SW_SHOWNORMAL: i32 = 1;
+    let wide: Vec<u16> = without_verbatim_prefix(target)
+        .as_os_str()
+        .encode_wide()
+        .chain(std::iter::once(0))
+        .collect();
+    let result = unsafe {
+        ShellExecuteW(
+            std::ptr::null_mut(),
+            std::ptr::null(),
+            wide.as_ptr(),
+            std::ptr::null(),
+            std::ptr::null(),
+            SW_SHOWNORMAL,
+        )
+    };
+    if (result as isize) <= 32 {
+        return Err(crate::error::AppError::other("could not open path"));
+    }
+    Ok(())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn open_with_default_app(target: &std::path::Path) -> AppResult<()> {
+    let program = if cfg!(target_os = "macos") {
+        "open"
+    } else {
+        "xdg-open"
+    };
+    let status = crate::proc::hidden(program).arg(target).status()?;
+    if !status.success() {
+        return Err(crate::error::AppError::other("could not open path"));
+    }
+    Ok(())
+}
+
 #[tauri::command]
-pub async fn open_path(path: String) -> AppResult<()> {
+pub async fn open_path(path: String, file: String) -> AppResult<()> {
     blocking(move || {
-        let status = {
-            #[cfg(target_os = "macos")]
-            {
-                crate::proc::hidden("open").arg(&path).status()
-            }
-            #[cfg(target_os = "windows")]
-            {
-                crate::proc::hidden("cmd")
-                    .args(["/C", "start", "", &path])
-                    .status()
-            }
-            #[cfg(all(unix, not(target_os = "macos")))]
-            {
-                crate::proc::hidden("xdg-open").arg(&path).status()
-            }
-        }?;
-        if !status.success() {
-            return Err(crate::error::AppError::other("could not open path"));
-        }
-        Ok(())
+        let target = file_inside_repo(std::path::Path::new(&path), &file)?;
+        open_with_default_app(&target)
     })
     .await
 }
@@ -423,6 +480,9 @@ pub async fn reveal_path(path: String) -> AppResult<()> {
             #[cfg(target_os = "windows")]
             {
                 use std::os::windows::process::CommandExt;
+                if path.contains('"') {
+                    return Err(crate::error::AppError::other("invalid path"));
+                }
                 let native = path.replace('/', "\\");
                 crate::proc::hidden("explorer")
                     .raw_arg(format!("/select,\"{native}\""))
@@ -1287,6 +1347,91 @@ pub async fn file_contents(path: String, file: String, oid: Option<String>) -> A
 mod tests {
     use super::*;
     use std::time::{Duration, Instant};
+
+    fn open_fixture() -> (tempfile::TempDir, std::path::PathBuf) {
+        let root = tempfile::tempdir().unwrap();
+        let repo = root.path().join("repo");
+        std::fs::create_dir_all(repo.join("dir")).unwrap();
+        std::fs::write(repo.join("a.txt"), "a").unwrap();
+        std::fs::write(repo.join("dir").join("b.txt"), "b").unwrap();
+        std::fs::write(repo.join("readme&calc"), "x").unwrap();
+        std::fs::write(root.path().join("secret.txt"), "s").unwrap();
+        (root, repo)
+    }
+
+    #[test]
+    fn open_accepts_existing_files_inside_the_repository() {
+        let (_root, repo) = open_fixture();
+        let canonical = std::fs::canonicalize(&repo).unwrap();
+        for file in ["a.txt", "dir/b.txt", "readme&calc"] {
+            let target = file_inside_repo(&repo, file).unwrap();
+            assert!(target.starts_with(&canonical), "{file}");
+            assert!(target.is_file(), "{file}");
+        }
+    }
+
+    #[test]
+    fn open_rejects_paths_outside_the_repository() {
+        let (root, repo) = open_fixture();
+        let secret = root.path().join("secret.txt");
+        let absolute = secret.to_string_lossy().to_string();
+        for file in [
+            "",
+            "../secret.txt",
+            "dir/../../secret.txt",
+            "dir/../a.txt",
+            "./a.txt",
+            absolute.as_str(),
+            "dir",
+            "missing.txt",
+        ] {
+            assert!(file_inside_repo(&repo, file).is_err(), "{file:?}");
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn open_rejects_a_symlink_that_leaves_the_repository() {
+        let (root, repo) = open_fixture();
+        std::os::unix::fs::symlink(root.path().join("secret.txt"), repo.join("link")).unwrap();
+        assert!(file_inside_repo(&repo, "link").is_err());
+    }
+
+    #[test]
+    fn open_never_goes_through_a_shell_interpreter() {
+        let text = include_str!("commands.rs");
+        let start = text.find("pub(crate) fn file_inside_repo").unwrap();
+        let end = text.find("pub async fn paths_exist").unwrap();
+        let region = &text[start..end];
+        for needle in [
+            "hidden(\"cmd",
+            "\"/C\"",
+            "\"start\"",
+            "powershell",
+            "hidden(\"sh",
+            "hidden(\"/bin/sh",
+            "\"-c\"",
+        ] {
+            assert!(!region.contains(needle), "open_path uses {needle}");
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn verbatim_prefixes_are_removed_before_shell_execute() {
+        assert_eq!(
+            without_verbatim_prefix(std::path::Path::new(r"\\?\C:\repo\a.txt")),
+            std::path::PathBuf::from(r"C:\repo\a.txt")
+        );
+        assert_eq!(
+            without_verbatim_prefix(std::path::Path::new(r"\\?\UNC\server\share\a.txt")),
+            std::path::PathBuf::from(r"\\server\share\a.txt")
+        );
+        assert_eq!(
+            without_verbatim_prefix(std::path::Path::new(r"C:\repo\a.txt")),
+            std::path::PathBuf::from(r"C:\repo\a.txt")
+        );
+    }
 
     #[test]
     fn a_new_worktree_is_locked_through_its_canonical_path_until_its_hook_finishes() {
