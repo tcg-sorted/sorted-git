@@ -715,8 +715,23 @@ const demoPull = (
   base: { ref: 'main' },
 });
 
+const DEMO_GITHUB_AVATARS: Record<string, string> = {
+  'sokha@angkorgit.dev': 'https://avatars.githubusercontent.com/u/1001?v=4',
+  'dara@angkorgit.dev': 'https://avatars.githubusercontent.com/u/1002?v=4',
+};
+
 export function demoForgeResponse(request: HttpRequest): HttpResponse {
   const url = request.url;
+  const commitSha = /\/commits\/([0-9a-f]+)$/.exec(url)?.[1];
+  if (request.method === 'GET' && commitSha) {
+    const commit = ALL_COMMITS.find((c) => c.oid === commitSha);
+    if (!commit) return { status: 422, body: JSON.stringify({ message: 'No commit found for SHA' }) };
+    const avatar = DEMO_GITHUB_AVATARS[commit.author.email] ?? null;
+    return {
+      status: 200,
+      body: JSON.stringify({ sha: commitSha, author: avatar ? { login: commit.author.name, avatar_url: avatar } : null }),
+    };
+  }
   if (request.method === 'POST' && url.includes('/pulls')) {
     const payload = JSON.parse(request.body ?? '{}') as { title?: string; head?: string; draft?: boolean };
     return {

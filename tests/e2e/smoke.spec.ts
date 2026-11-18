@@ -545,19 +545,24 @@ test('hovering a working copy file reveals its full path', async ({ page }) => {
   await expect(page.getByRole('tooltip').filter({ hasText: longPath })).toBeVisible();
 });
 
-test('avatars stay visible after opening and closing a diff', async ({ page }) => {
+test('GitHub avatars stay visible after a diff round-trip and nothing else is contacted', async ({ page }) => {
   const pixel = Buffer.from(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
     'base64',
   );
-  await page.route('**://www.gravatar.com/**', (route) =>
+  const avatarHosts = new Set<string>();
+  page.on('request', (request) => {
+    const host = new URL(request.url()).hostname;
+    if (!['localhost', '127.0.0.1'].includes(host)) avatarHosts.add(host);
+  });
+  await page.route('**://avatars.githubusercontent.com/**', (route) =>
     route.fulfill({ status: 200, contentType: 'image/png', body: pixel }),
   );
 
   const visibleAvatars = () =>
     page.evaluate(
       () =>
-        [...document.querySelectorAll('img[src*="gravatar"]')].filter(
+        [...document.querySelectorAll('img[src*="avatars.githubusercontent.com"]')].filter(
           (img) => getComputedStyle(img).opacity === '1',
         ).length,
     );
@@ -572,6 +577,11 @@ test('avatars stay visible after opening and closing a diff', async ({ page }) =
   await page.keyboard.press('Escape');
   await expect(page.getByPlaceholder('Search commits…')).toBeVisible();
   await expect.poll(visibleAvatars, { timeout: 10_000 }).toBeGreaterThan(0);
+
+  const maly = page.locator('span[aria-label="Maly Sok"]').first();
+  await expect(maly).toHaveText('MS');
+  await expect(maly.locator('img')).toHaveCount(0);
+  expect([...avatarHosts].filter((host) => host !== 'avatars.githubusercontent.com')).toEqual([]);
 });
 
 test('text selection in a diff survives the right-click copy menu', async ({ page }) => {
