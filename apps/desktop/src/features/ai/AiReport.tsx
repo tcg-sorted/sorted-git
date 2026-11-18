@@ -48,7 +48,7 @@ function Inline({ text, locate }: { text: string; locate?: AiReportLocate }) {
                 className={cn(
                   'rounded bg-surface-raised px-1 py-px text-left font-mono text-[0.9em] text-foreground',
                   'underline decoration-primary/50 decoration-dotted underline-offset-2 transition-colors',
-                  'hover:bg-primary/15 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+                  'hover:bg-primary/15 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus',
                 )}
               >
                 {segment.text}

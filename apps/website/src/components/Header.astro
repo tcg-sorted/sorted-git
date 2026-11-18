@@ -6,7 +6,7 @@ import { NAV, SITE } from '../lib/site';
 
 <header
   id="site-header"
-  class="sticky top-0 z-50 border-b border-border-subtle/70 bg-background/80 backdrop-blur-md"
+  class="sticky top-0 z-50 border-b border-border-subtle/70 bg-background/80 backdrop-blur-[20px]"
 >
   <div class="container-site flex h-16 items-center justify-between gap-4">
     <a href="/" class="flex items-center gap-2.5" aria-label="AngKorGit home">
@@ -30,7 +30,7 @@ import { NAV, SITE } from '../lib/site';
         target="_blank"
         rel="noreferrer"
         aria-label="View source on GitHub"
-        class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted transition-colors hover:bg-surface-raised hover:text-foreground"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors duration-[120ms] hover:bg-surface-raised hover:text-foreground"
       >
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path
@@ -42,7 +42,7 @@ import { NAV, SITE } from '../lib/site';
 
       <a
         href="/#install"
-        class="hidden items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90 sm:inline-flex"
+        class="hidden items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-[120ms] hover:bg-primary/85 sm:inline-flex"
       >
         Download
         <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -56,7 +56,7 @@ import { NAV, SITE } from '../lib/site';
         aria-label="Open menu"
         aria-expanded="false"
         aria-controls="nav-menu"
-        class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted transition-colors hover:bg-surface-raised hover:text-foreground lg:hidden"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors duration-[120ms] hover:bg-surface-raised hover:text-foreground lg:hidden"
       >
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 6h16M4 12h16M4 18h16" />
@@ -71,14 +71,14 @@ import { NAV, SITE } from '../lib/site';
         NAV.map((item) => (
           <a
             href={item.href}
-            class="rounded-md px-3 py-2.5 text-sm text-muted transition-colors hover:bg-surface-raised hover:text-foreground"
+            class="rounded-xl px-3 py-2.5 text-sm text-muted transition-colors duration-[120ms] hover:bg-surface-raised hover:text-foreground"
           >
             {item.label}
           </a>
         ))
       }      <a
         href="/#install"
-        class="mt-2 inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
+        class="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
       >
         Download AngKorGit
       </a>
@@ -146,12 +146,11 @@ import { NAV, SITE } from '../lib/site';
   header {
     transition:
       box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+      border-color 120ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   header.scrolled {
     border-color: hsl(var(--border));
-    box-shadow: 0 12px 32px -24px hsl(var(--foreground) / 0.18);
-  }
+      }
   .nav-active {
     background: hsl(var(--surface-raised));
     color: hsl(var(--foreground));

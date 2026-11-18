@@ -37,7 +37,7 @@ angkorgit/
 │       │                        Hero, Story, Size ("Native, not a browser"), SpecSheet, AiSection,
 │       │                        Install (TerminalBlock), Questions, Header (+mobile menu),
 │       │                        Footer, ThemeToggle, Splash, Logo (SVG mirror of app mark).
-│       │                        Display type is Instrument Serif (@fontsource), `.display` class.
+│       │                        Display type is Archivo extrabold uppercase (@fontsource-variable/archivo), `.display` class; the site follows the Sorted design system (see design-system.md).
 │       │                        Copy rules: owner voice, no download-size numbers, no
 │       │                        Cambodia/name mentions (owner request 2026-09-05)
 │       │                        SEO PAGES (owner request 2026-09-28, "our site should appear
@@ -189,7 +189,7 @@ angkorgit/
 │       ├── lib/cn.ts          ← clsx + tailwind-merge
 │       └── components/        ← Button, Input, Dialog, DropdownMenu(+Sub), Tooltip/Hint,
 │                                HoverCard, Tabs, Select, Switch, Checkbox, Badge (forwardRef,
-│                                see G39), Kbd, Spinner, Separator, Logo (Angkor-towers SVG mark)
+│                                see G39), Kbd, Spinner, Separator, Logo (Sorted S monogram, currentColor)
 ├── docs/                      ← Architecture, UI-Guidelines, Development, Contributing,
 │                                Roadmap, Coding-Standards
 ├── tests/

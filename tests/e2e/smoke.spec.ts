@@ -2892,7 +2892,7 @@ test('the fonts card changes the interface, code and terminal fonts and remember
   await expect(reopened.getByRole('combobox', { name: 'Terminal font', exact: true })).toContainText('Menlo');
   await reopened.getByRole('button', { name: 'Reset fonts' }).click();
   await expect.poll(() => rootVar('--font-sans')).not.toContain('Helvetica Neue');
-  await expect(reopened.getByRole('combobox', { name: 'Interface font' })).toContainText('Inter');
+  await expect(reopened.getByRole('combobox', { name: 'Interface font' })).toContainText('Archivo');
   await expect(reopened.getByRole('button', { name: 'Reset fonts' })).toHaveCount(0);
 });
 
@@ -4152,7 +4152,7 @@ test('switching between dark and light recolours every control in the same frame
   await page.goto('/');
   await page.getByText('angkorgit', { exact: true }).first().click();
   await expect(page.getByPlaceholder('Search commits…')).toBeVisible({ timeout: 10_000 });
-  for (const theme of ['light', 'angkor-dusk']) {
+  for (const theme of ['light', 'dark']) {
     const lagging = await page.evaluate(async (theme) => {
       const { useSettings } = await import('/src/features/settings/store.ts');
       const elements = [...document.querySelectorAll<HTMLElement | SVGElement>('body *')];

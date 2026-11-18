@@ -1007,7 +1007,7 @@ export function WorkingCopyPanel() {
         tabIndex={0}
         aria-label="Changed files"
         onKeyDown={onListKeyDown}
-        className="relative min-h-0 flex-1 overflow-y-auto p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40"
+        className="relative min-h-0 flex-1 overflow-y-auto p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
       >
         {status === null ? (
           <div className="flex h-full items-center justify-center">
@@ -1431,7 +1431,7 @@ export function WorkingCopyPanel() {
           <div
             className={cn(
               'rounded-md border border-border bg-surface shadow-sm transition-colors',
-              'focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/60',
+              'focus-within:border-focus focus-within:ring-2 focus-within:ring-focus',
             )}
           >
             <div className="relative flex items-center">

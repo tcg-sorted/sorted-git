@@ -14,7 +14,7 @@ export const HoverCardContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        'z-50 rounded-lg border border-border bg-surface-overlay p-1 shadow-soft animate-slide-up',
+        'z-50 rounded-lg border border-border-subtle bg-glass p-1 shadow-soft backdrop-blur-glass animate-slide-up',
         className,
       )}
       {...props}

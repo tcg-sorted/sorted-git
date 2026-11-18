@@ -1,7 +1,7 @@
 import type { ITheme } from '@xterm/xterm';
 
-const FALLBACK_DARK: ITheme = { background: '#0D1220', foreground: '#E2E6EF', cursor: '#D97706' };
-const FALLBACK_LIGHT: ITheme = { background: '#FFFFFF', foreground: '#1A2233', cursor: '#D97706' };
+const FALLBACK_DARK: ITheme = { background: '#121212', foreground: '#F7F7F7', cursor: '#357FFF' };
+const FALLBACK_LIGHT: ITheme = { background: '#F7F7F7', foreground: '#121212', cursor: '#357FFF' };
 
 interface Hsl {
   h: number;

@@ -1408,7 +1408,7 @@ export function ConflictResolver({ file, onResolved }: { file: string; onResolve
                 aria-label="Resolved file content (editable)"
                 className={cn(
                   'min-h-0 flex-1 resize-none bg-transparent px-4 py-2 font-mono text-xs leading-5 text-foreground',
-                  'focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary/40',
+                  'focus:outline-none focus:ring-1 focus:ring-inset focus:ring-focus',
                 )}
               />
             ) : (

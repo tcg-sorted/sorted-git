@@ -1,9 +1,9 @@
-export const INTERFACE_FONT_DEFAULT = 'Inter';
+export const INTERFACE_FONT_DEFAULT = 'Archivo';
 export const CODE_FONT_DEFAULT = 'JetBrains Mono';
 export const TERMINAL_FONT_SIZE_DEFAULT = 12;
 export const TERMINAL_FONT_SIZES = [10, 11, 12, 13, 14, 15, 16, 18, 20] as const;
 
-const INTERFACE_STACK = "'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif";
+const INTERFACE_STACK = "'Archivo Variable', 'Archivo', system-ui, -apple-system, sans-serif";
 const CODE_STACK = "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace";
 
 export const cleanFontFamily = (family: string): string => family.trim().replace(/["']/g, '');

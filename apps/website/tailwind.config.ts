@@ -10,7 +10,7 @@ export default {
         tightest: '-0.03em',
       },
       fontFamily: {
-        display: ['"Instrument Serif"', 'Georgia', '"Times New Roman"', 'serif'],
+        display: ['"Archivo Variable"', 'Archivo', 'system-ui', 'sans-serif'],
       },
     },
   },
