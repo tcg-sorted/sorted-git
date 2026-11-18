@@ -7,7 +7,7 @@ describe('remoteWebUrl', () => {
   });
 
   it('turns an scp-style ssh remote into an https page', () => {
-    expect(remoteWebUrl('git@gitlab.com:group/subgroup/api.git')).toBe('https://gitlab.com/group/subgroup/api');
+    expect(remoteWebUrl('git@git.example.com:group/subgroup/api.git')).toBe('https://git.example.com/group/subgroup/api');
   });
 
   it('drops the ssh port and user from an ssh:// remote', () => {
