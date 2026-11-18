@@ -32,7 +32,7 @@ attributes. PRs that add explanatory comments move the content to docs instead.
 
 - Tailwind utilities only; tokens come from the design system (`bg-surface`, `text-muted`, …). No hex colors in components.
 - 8px spacing scale; no arbitrary values (`p-[13px]` is a review blocker).
-- Angkor Dusk is the default theme; check every visual change at least in Angkor Dusk and one light theme (sixteen themes ship in total).
+- Sorted (dark) is the default theme; check every visual change at least in Sorted and Sorted Light (fourteen themes ship in total).
 
 ## Commits & PRs
 

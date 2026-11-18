@@ -12,31 +12,29 @@ AngKorGit's interface should feel like a professional developer tool: minimal, f
 ## Design tokens
 
 Everything visual flows from CSS variables: the base dark/light palettes live in
-`packages/design-system/src/tokens.css`, and every other theme (including the
-default **Angkor Dusk** and its light counterpart **Angkor Dawn**) redefines the
-same tokens in `packages/design-system/src/themes.css`. Sixteen themes ship in
-total; a change must hold up at least in the default Angkor Dusk plus one light
-theme.
+`packages/design-system/src/tokens.css` (the default **Sorted** theme and **Sorted
+Light**, from the company's Sorted design system), and every other theme redefines the
+same tokens in `packages/design-system/src/themes.css`. Fourteen themes ship in
+total; a change must hold up at least in Sorted and Sorted Light.
 
 | Token | Base dark values | Purpose |
 | --- | --- | --- |
-| `--primary` | Temple Gold `#D97706` | actions, HEAD, brand |
-| `--background` / `--surface` / `--surface-raised` / `--surface-overlay` | slate scale around `#111827` (Angkor Dusk: warm laterite around `#1e150d`) | depth levels 0–3 |
-| `--danger` | `#EF4444` | destructive actions, deletions |
-| `--success` | `#22C55E` | additions, confirmations |
+| `--primary` | Sorted blue `#548cff` (light: `#0165d8`) | actions, HEAD, brand |
+| `--background` / `--surface` / `--surface-raised` / `--surface-overlay` | neutral greys `#121212` / `#212121` / `#303030` | depth levels 0–3 |
+| `--danger` | `#fb7a58` | destructive actions, deletions |
+| `--success` | `#4fd49d` | additions, confirmations |
 | `--graph-0…9` | 10-color wheel | commit graph lanes |
 
-The kbach colonnade ornament (`TemplePattern`) appears only on the welcome and
-splash screens, only in the Angkor Dusk/Dawn themes, at low opacity — never
-behind the graph, diffs, or code, and invisible in every other theme.
+Surfaces stay flat: no ornaments, patterns or gradient backgrounds. The logo is the
+Sorted S monogram; focus rings are grey (`ring-focus`), never blue.
 
 Rules:
 
 - **8px rhythm.** Spacing uses the Tailwind scale (`gap-2`, `p-4`…). No arbitrary pixel values.
-- **Typography.** Inter for UI, JetBrains Mono for anything Git: hashes, paths, diffs, messages being authored.
-- **Radii.** `rounded-md` for controls, `rounded-lg` for surfaces. Nothing sharp, nothing pill-shaped except badges.
+- **Typography.** Archivo for UI, JetBrains Mono for anything Git: hashes, paths, diffs, messages being authored.
+- **Radii.** `rounded-lg` (12px) for fields and menus, `rounded-xl` (16px) for panels and dialogs, pills for text buttons and tabs, `rounded-sm` (6px) for badges.
 - **Elevation.** Prefer borders (`border-border-subtle`) over shadows; `shadow-soft` only for overlays.
-- **Color = meaning.** Green is additions/success, red is deletions/danger, gold is primary/HEAD, blue is remote/info. Never decorative.
+- **Color = meaning.** Green is additions/success, red is deletions/danger, Sorted blue is primary/HEAD, periwinkle (`--info`) is remote/info. Never decorative.
 
 ## Motion
 
