@@ -34,6 +34,5 @@ export * from './forge/shared';
 export * from './forge/types';
 export * from './forge/provider';
 export * from './forge/providers/github';
-export * from './forge/providers/gitlab';
 export * from './forge/providers/bitbucket';
 export * from './settings/filter';

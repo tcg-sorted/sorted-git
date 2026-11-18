@@ -16,7 +16,7 @@ import { useSettings } from '@/features/settings/store';
 import { useUi } from '@/features/ui/store';
 import { useWhatsNew } from '@/features/changelog/useWhatsNew';
 import { capCount, currentPullRequestUrl, timeAgo } from '@/shared/utils';
-import { AI_PROVIDER_PRESETS, CLI_AGENTS, forgeNoun, parseForgeRemote, parseRemote, pickForgeRemote } from '@angkorgit/core';
+import { AI_PROVIDER_PRESETS, CLI_AGENTS, parseForgeRemote, parseRemote, pickForgeRemote } from '@angkorgit/core';
 
 const ZOOM_LEVELS = [50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200];
 
@@ -79,7 +79,6 @@ export function StatusBar() {
   const openDialog = useUi((s) => s.openDialog);
   const forgeCurrent = forgeRepoPath !== null && forgeRepoPath === repo?.path;
   const createInApp = forgeCurrent && !!forgeRemote && forgeAccount;
-  const prNoun = forgeNoun(forgeCurrent ? forgeRemote?.kind : null);
 
   return (
     <footer className="flex h-6 shrink-0 items-center gap-3 border-t border-border-subtle bg-surface px-3 text-[11px] text-muted">
@@ -152,7 +151,7 @@ export function StatusBar() {
         <Hint
           label={
             createInApp
-              ? `Create a ${prNoun} for ${repo?.headBranch} without leaving AngKorGit`
+              ? `Create a pull request for ${repo?.headBranch} without leaving AngKorGit`
               : `Open a pre-filled pull request page for ${repo?.headBranch}`
           }
         >
@@ -164,7 +163,7 @@ export function StatusBar() {
             }
           >
             <GitPullRequest className="size-3" />
-            Create {prNoun}
+            Create pull request
           </button>
         </Hint>
       )}

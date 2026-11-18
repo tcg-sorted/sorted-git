@@ -25,7 +25,7 @@ export function pickForgeRemote(
   return pickRemote(remotes, headUpstream);
 }
 
-export type ForgeKind = 'github' | 'gitlab' | 'bitbucket' | 'bitbucket-server';
+export type ForgeKind = 'github' | 'bitbucket' | 'bitbucket-server';
 
 export interface ForgeRemote {
   kind: ForgeKind;
@@ -55,7 +55,6 @@ export function declaredForgeKind(host: string): ForgeKind | null {
 export function forgeKindForProvider(provider: string): ForgeKind | null {
   const p = provider.toLowerCase();
   if (p.startsWith('github')) return 'github';
-  if (p.startsWith('gitlab')) return 'gitlab';
   if (p === 'bitbucket-server') return 'bitbucket-server';
   if (p.startsWith('bitbucket')) return 'bitbucket';
   return null;
@@ -65,7 +64,6 @@ export function detectedForgeKind(hostname: string): ForgeKind | null {
   if (hostname.includes('github')) return 'github';
   if (hostname === 'bitbucket.org') return 'bitbucket';
   if (hostname.includes('bitbucket')) return 'bitbucket-server';
-  if (hostname.includes('gitlab')) return 'gitlab';
   return declaredForgeKind(hostname);
 }
 
@@ -82,8 +80,7 @@ function shapeRemote(
     if (segments[0] !== 'scm' || segments.length < 3) return null;
     return { kind, owner: segments[1], repo: segments.slice(2).join('/'), ...base };
   }
-  if (segments.length < 2) return null;
-  return { kind, owner: segments.slice(0, -1).join('/'), repo: segments[segments.length - 1], ...base };
+  return null;
 }
 
 export function parseForgeRemote(url: string): ForgeRemote | null {
