@@ -31,7 +31,9 @@ fn checked_request_url(host: &str, url: &str) -> AppResult<Url> {
         return Err(AppError::other(NEEDS_HTTPS));
     }
     if !parsed.username().is_empty() || parsed.password().is_some() {
-        return Err(AppError::other("forge request URLs must not carry userinfo"));
+        return Err(AppError::other(
+            "forge request URLs must not carry userinfo",
+        ));
     }
     let Some((remote_host, remote_port)) = remote_origin(host) else {
         return Err(AppError::other(format!("invalid remote host {host}")));
@@ -151,7 +153,10 @@ mod tests {
         assert!(allowed("github.com", "https://github.com/a/b"));
         assert!(allowed("GitHub.com/", "https://API.github.com/user"));
         assert!(!allowed("github.com", "https://evilgithub.com/user"));
-        assert!(!allowed("github.com", "https://api.github.com.evil.dev/user"));
+        assert!(!allowed(
+            "github.com",
+            "https://api.github.com.evil.dev/user"
+        ));
     }
 
     #[test]
@@ -176,7 +181,10 @@ mod tests {
     #[test]
     fn urls_carrying_userinfo_are_refused() {
         assert!(!allowed("github.com", "https://x:y@api.github.com/user"));
-        assert!(!allowed("github.com", "https://api.github.com@evil.dev/user"));
+        assert!(!allowed(
+            "github.com",
+            "https://api.github.com@evil.dev/user"
+        ));
     }
 
     #[test]
