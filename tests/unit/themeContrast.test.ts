@@ -75,23 +75,22 @@ describe('theme text contrast', () => {
     expect(muted).toBeGreaterThan(faint);
   });
 
-  const lightPalettes = palettes.filter(([name]) => lightNames.has(name));
-
-  it('checks the accent on every light theme', () => {
-    expect(lightPalettes.length).toBe(5);
-  });
-
-  it.each(lightPalettes)('%s keeps accent text and labels on accent fills readable', (_, vars) => {
+  it.each(palettes)('%s keeps accent text and labels on accent fills readable', (_, vars) => {
     expect(tierOf(vars, 'primary')).toBeGreaterThanOrEqual(4.5);
     expect(contrast(vars['primary-foreground'], vars.primary)).toBeGreaterThanOrEqual(4.5);
   });
 
   const accents: Array<[string, Vars]> = [...tokens.entries()]
-    .filter(([selector]) => selector.startsWith('.light.accent-'))
-    .map(([selector, { vars }]): [string, Vars] => [
-      selector,
-      { ...lightBase, ...vars },
-    ]);
+    .filter(([selector]) => /^(\.light|:root)\.accent-/.test(selector))
+    .flatMap(([selector, { vars }]): Array<[string, Vars]> =>
+      palettes
+        .filter(([name]) => lightNames.has(name) === selector.startsWith('.light'))
+        .map(([name, base]): [string, Vars] => [`${selector} on ${name}`, { ...base, ...vars }]),
+    );
+
+  it('checks every accent on every theme', () => {
+    expect(accents.length).toBe(4 * 14);
+  });
 
   it.each(accents)('%s keeps accent text and labels on accent fills readable', (_, vars) => {
     expect(tierOf(vars, 'primary')).toBeGreaterThanOrEqual(4.5);

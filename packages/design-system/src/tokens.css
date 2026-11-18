@@ -41,10 +41,10 @@
   --disabled-foreground: 0 0% 36.9%;
   --syntax-comment: 0 0% 46%;
 
-  --primary: 218 100% 60.4%;
+  --primary: 220.5 100% 66.5%;
   --primary-foreground: 0 0% 7.1%;
   --primary-pressed: 212.1 99.1% 42.5%;
-  --link: 218 100% 60.4%;
+  --link: 220.5 100% 66.5%;
   --danger: 12.5 95.3% 66.5%;
   --danger-foreground: 0 0% 7.1%;
   --success: 155.2 60.7% 57.1%;
@@ -68,10 +68,10 @@
   color-scheme: dark;
 }
 
-.accent-jade { --primary: 160 84% 42%; --primary-foreground: 160 90% 8%; }
-.accent-sapphire { --primary: 226.1 100% 75.5%; --primary-foreground: 0 0% 7.1%; }
-.accent-lotus { --primary: 330 81% 62%; --primary-foreground: 330 90% 10%; }
-.accent-crimson { --primary: 12.5 95.3% 66.5%; --primary-foreground: 0 0% 7.1%; }
+:root.accent-jade { --primary: 160 84% 43%; --primary-foreground: 160 90% 8%; }
+:root.accent-sapphire { --primary: 226.1 100% 79%; --primary-foreground: 0 0% 7.1%; }
+:root.accent-lotus { --primary: 330 81% 76%; --primary-foreground: 330 90% 10%; }
+:root.accent-crimson { --primary: 12.5 95.3% 73%; --primary-foreground: 0 0% 7.1%; }
 
 .light {
   --graph-tail-start: 0.34;
@@ -129,7 +129,7 @@
   color-scheme: light;
 }
 
-.light.accent-jade { --primary: 161 94% 25%; --primary-foreground: 0 0% 100%; }
-.light.accent-sapphire { --primary: 212.1 99.1% 42.5%; --primary-foreground: 0 0% 100%; }
+.light.accent-jade { --primary: 161 94% 24%; --primary-foreground: 0 0% 100%; }
+.light.accent-sapphire { --primary: 212.1 99.1% 41.5%; --primary-foreground: 0 0% 100%; }
 .light.accent-lotus { --primary: 330 81% 43%; --primary-foreground: 0 0% 100%; }
 .light.accent-crimson { --primary: 7 90.4% 40.8%; --primary-foreground: 0 0% 100%; }
