@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   ExternalLink,
   Github,
-  Gitlab,
   Globe,
   KeyRound,
   MoreHorizontal,
@@ -36,7 +35,7 @@ import { timeAgo } from '@/shared/utils';
 import { confirmDialog } from '@/components/confirm';
 import { Field, SettingCard } from './SettingCard';
 
-type ProviderKind = 'github' | 'gitlab' | 'gitlab-self' | 'bitbucket' | 'other';
+type ProviderKind = 'github' | 'bitbucket' | 'other';
 
 interface ProviderPreset {
   label: string;
@@ -73,22 +72,6 @@ const PROVIDERS: Record<ProviderKind, ProviderPreset> = {
     ),
     usernameHint: 'username (detected from the token)',
   },
-  gitlab: {
-    label: 'GitLab.com',
-    defaultHost: 'gitlab.com',
-    hostEditable: false,
-    tokenPage: () => 'https://gitlab.com/-/user_settings/personal_access_tokens',
-    tokenHint: 'Personal access token with "read_repository" + "write_repository" scopes',
-    usernameHint: 'username (detected from the token)',
-  },
-  'gitlab-self': {
-    label: 'GitLab (self-hosted)',
-    defaultHost: '',
-    hostEditable: true,
-    tokenPage: (host) => (host ? `http://${host}/-/user_settings/personal_access_tokens` : null),
-    tokenHint: 'Personal access token with "read_repository" + "write_repository" scopes',
-    usernameHint: 'username (detected from the token)',
-  },
   bitbucket: {
     label: 'Bitbucket',
     defaultHost: 'bitbucket.org',
@@ -109,7 +92,6 @@ const PROVIDERS: Record<ProviderKind, ProviderPreset> = {
 
 export function providerIcon(provider: string) {
   if (provider === 'github') return <Github className="size-4" />;
-  if (provider.startsWith('gitlab')) return <Gitlab className="size-4" />;
   return <Globe className="size-4" />;
 }
 
@@ -130,10 +112,9 @@ function daysUntil(date: Date): number {
 
 async function validateToken(
   provider: ProviderKind,
-  host: string,
   identity: string,
   token: string,
-): Promise<{ login: string } | null | 'unreachable'> {
+): Promise<{ login: string } | null> {
   try {
     if (provider === 'bitbucket') {
       if (!identity) {
@@ -167,26 +148,6 @@ async function validateToken(
       });
       if (res.status !== 200) throw new Error(`GitHub rejected the token (${res.status})`);
       return { login: (JSON.parse(res.body) as { login: string }).login };
-    }
-    if (provider === 'gitlab' || provider === 'gitlab-self') {
-      for (const scheme of ['https', 'http']) {
-        try {
-          const res = await ipc.httpRequest({
-            url: `${scheme}://${host}/api/v4/user`,
-            method: 'GET',
-            headers: { 'private-token': token, 'user-agent': 'AngKorGit' },
-          });
-          if (res.status === 200) {
-            return { login: (JSON.parse(res.body) as { username: string }).username };
-          }
-          if (res.status === 401 || res.status === 403) {
-            throw new Error(`GitLab rejected the token (${res.status})`);
-          }
-        } catch (error) {
-          if ((error as Error).message?.includes('rejected')) throw error;
-        }
-      }
-      return 'unreachable';
     }
     return null;
   } catch (error) {
@@ -354,11 +315,8 @@ export function AccountsTab() {
     try {
       let finalUsername = username.trim();
       let isVerified = false;
-      const verified = await validateToken(provider, cleanHost, finalUsername, token.trim());
-      if (verified === 'unreachable') {
-        toast.warning(`${cleanHost} is unreachable right now — saving without verification`);
-        if (!finalUsername) throw new Error('enter a username to save without verification');
-      } else if (verified) {
+      const verified = await validateToken(provider, finalUsername, token.trim());
+      if (verified) {
         finalUsername = verified.login;
         isVerified = true;
       } else if (!finalUsername) {
@@ -549,7 +507,7 @@ export function AccountsTab() {
               </Field>
               <Field label="Host">
                 <Input
-                  placeholder="gitlab.example.com"
+                  placeholder="git.example.com"
                   value={host}
                   disabled={!preset.hostEditable || reconnecting !== null}
                   onChange={(e) => setHost(e.target.value)}

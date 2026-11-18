@@ -21,7 +21,7 @@ export const SETTINGS_CARDS = [
   { id: 'editor', section: 'git', titles: ['External editor'], keywords: 'vscode visual studio code zed sublime open' },
   { id: 'identity', section: 'git', titles: ['Identity for this repository', 'Global identity'], keywords: 'user name email config author commits' },
   { id: 'profiles', section: 'git', titles: ['Profiles'], keywords: 'work personal identity linked accounts' },
-  { id: 'accounts', section: 'accounts', titles: ['Accounts'], keywords: 'https github gitlab bitbucket token host login credentials' },
+  { id: 'accounts', section: 'accounts', titles: ['Accounts'], keywords: 'https github bitbucket token host login credentials' },
   { id: 'credential-helper', section: 'accounts', titles: ['System credential helper'], keywords: 'https password keychain credentials' },
   { id: 'ssh', section: 'accounts', titles: ['SSH'], keywords: 'agent keys public private generate path authentication' },
   { id: 'provider', section: 'ai', titles: ['Provider'], keywords: 'model api key base url connection ollama openai anthropic claude codex gemini cli' },

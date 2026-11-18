@@ -19,24 +19,48 @@ pub struct HttpResponse {
     pub body: String,
 }
 
-pub(crate) fn shared_client() -> AppResult<&'static reqwest::Client> {
-    static CLIENT: std::sync::OnceLock<reqwest::Client> = std::sync::OnceLock::new();
-    if let Some(client) = CLIENT.get() {
+type ClientCell = std::sync::OnceLock<reqwest::Client>;
+
+fn client_in(
+    cell: &'static ClientCell,
+    policy: fn() -> reqwest::redirect::Policy,
+) -> AppResult<&'static reqwest::Client> {
+    if let Some(client) = cell.get() {
         return Ok(client);
     }
     let built = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(120))
+        .redirect(policy())
         .build()
         .map_err(|e| AppError::other(e.to_string()))?;
-    Ok(CLIENT.get_or_init(|| built))
+    Ok(cell.get_or_init(|| built))
+}
+
+fn shared_client() -> AppResult<&'static reqwest::Client> {
+    static CLIENT: ClientCell = ClientCell::new();
+    client_in(&CLIENT, reqwest::redirect::Policy::default)
+}
+
+pub(crate) fn credentialed_client() -> AppResult<&'static reqwest::Client> {
+    static CLIENT: ClientCell = ClientCell::new();
+    client_in(&CLIENT, reqwest::redirect::Policy::none)
 }
 
 pub async fn request(req: HttpRequest) -> AppResult<HttpResponse> {
     if !req.url.starts_with("http://") && !req.url.starts_with("https://") {
         return Err(AppError::other("only http(s) URLs are allowed"));
     }
-    let client = shared_client()?;
+    send(shared_client()?, req).await
+}
 
+pub async fn request_credentialed(req: HttpRequest) -> AppResult<HttpResponse> {
+    if !req.url.starts_with("https://") {
+        return Err(AppError::other("credentialed requests need https"));
+    }
+    send(credentialed_client()?, req).await
+}
+
+async fn send(client: &reqwest::Client, req: HttpRequest) -> AppResult<HttpResponse> {
     let mut builder = match req.method.as_str() {
         "GET" => client.get(&req.url),
         "POST" => client.post(&req.url),

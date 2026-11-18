@@ -14,10 +14,9 @@ describe('pullRequestUrl', () => {
     );
   });
 
-  it('builds a merge request URL for self-hosted GitLab', () => {
-    expect(pullRequestUrl('https://gitlab.example.com/team/api.git', 'fix/login')).toBe(
-      'https://gitlab.example.com/team/api/-/merge_requests/new?merge_request%5Bsource_branch%5D=fix%2Flogin',
-    );
+  it('has no link for GitLab hosts', () => {
+    expect(pullRequestUrl('https://gitlab.example.com/team/api.git', 'fix/login')).toBeNull();
+    expect(pullRequestUrl('git@gitlab.com:team/api.git', 'dev')).toBeNull();
   });
 
   it('builds a Bitbucket pull request URL', () => {
@@ -33,14 +32,14 @@ describe('pullRequestUrl', () => {
   });
 
   it('keeps a non-standard https port in the link', () => {
-    expect(pullRequestUrl('https://gitlab.example.com:8443/team/api.git', 'dev')).toBe(
-      'https://gitlab.example.com:8443/team/api/-/merge_requests/new?merge_request%5Bsource_branch%5D=dev',
+    expect(pullRequestUrl('https://github.example.com:8443/team/api.git', 'dev')).toBe(
+      'https://github.example.com:8443/team/api/compare/dev?expand=1',
     );
   });
 
   it('preserves plain http for LAN remotes', () => {
-    expect(pullRequestUrl('http://gitlab.internal/team/api.git', 'dev')).toBe(
-      'http://gitlab.internal/team/api/-/merge_requests/new?merge_request%5Bsource_branch%5D=dev',
+    expect(pullRequestUrl('http://github.internal/team/api.git', 'dev')).toBe(
+      'http://github.internal/team/api/compare/dev?expand=1',
     );
   });
 
