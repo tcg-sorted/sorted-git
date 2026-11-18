@@ -113,17 +113,11 @@ function Shell() {
       if (cancelled) fn();
       else unlisten = fn;
     });
-    const updateTimer = setTimeout(() => {
-      void import('@/features/updater/check').then(({ checkForUpdates }) =>
-        checkForUpdates({ silent: true }),
-      );
-    }, 5000);
     return () => {
       cancelled = true;
       unlisten?.();
       clearTimeout(splashFallback);
       if (readyTimer !== undefined) clearTimeout(readyTimer);
-      clearTimeout(updateTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

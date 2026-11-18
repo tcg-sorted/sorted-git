@@ -670,18 +670,6 @@ export function WelcomePage() {
           <span aria-hidden>·</span>
           <button
             type="button"
-            className="hover:text-foreground hover:underline"
-            onClick={() =>
-              void import('@/features/updater/check').then(({ checkForUpdates }) =>
-                checkForUpdates({ silent: false }),
-              )
-            }
-          >
-            Check for updates
-          </button>
-          <span aria-hidden>·</span>
-          <button
-            type="button"
             className="relative flex items-center gap-1.5 hover:text-foreground hover:underline"
             data-whats-new-unseen={whatsNew.unseen}
             onClick={whatsNew.open}

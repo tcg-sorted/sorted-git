@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import { ArrowDown, ArrowUp, Bell, Check, GitBranch, GitPullRequest, Pencil, RefreshCw, Sparkles, ZoomIn } from 'lucide-react';
 import {
   DropdownMenu,
@@ -226,20 +225,7 @@ export function StatusBar() {
           {whatsNew.unseen && <span aria-hidden className="absolute right-0.5 top-0 size-1.5 rounded-full bg-primary" />}
         </button>
       </Hint>
-      <Hint label="Check for updates">
-        <button
-          type="button"
-          className="rounded px-1 hover:bg-surface-raised hover:text-foreground"
-          onClick={() => {
-            toast.loading('Checking for updates…', { id: 'updater' });
-            void import('@/features/updater/check')
-              .then(({ checkForUpdates }) => checkForUpdates({ silent: false }))
-              .finally(() => toast.dismiss('updater'));
-          }}
-        >
-          {version ? `v${version}` : 'AngKorGit'}
-        </button>
-      </Hint>
+      <span className="px-1">{version ? `v${version}` : 'AngKorGit'}</span>
     </footer>
   );
 }
