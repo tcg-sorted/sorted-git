@@ -1,1 +1,1 @@
-Project conventions, architecture, commands and hard-won gotchas live in CLAUDE.md. Read it before changing anything.
+Project conventions, architecture, commands and hard-won gotchas are indexed in CLAUDE.md, with the details in .claude/docs/. Read CLAUDE.md before changing anything, then the docs for the area you touch.

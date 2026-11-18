@@ -4,7 +4,7 @@
 
 ```
 angkorgit/
-├── CLAUDE.md                  ← this file
+├── CLAUDE.md                  ← AI docs index (details in .claude/docs/)
 ├── package.json               ← root scripts (see §4), pnpm workspace root
 ├── pnpm-workspace.yaml        ← apps/*, packages/*
 ├── tsconfig.base.json         ← strict TS + path aliases for both packages

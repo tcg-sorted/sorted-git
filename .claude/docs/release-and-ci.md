@@ -63,8 +63,8 @@
   7. `docs/Distribution.md` — Homebrew cask example
   8. `docs/Roadmap.md` — "Updated for vX" header + "Shipped" range, and move
      newly shipped items out of "Next"
-  9. `CLAUDE.md` itself — test counts in §9 and the §6/§5 subsystem map for any
-     feature that shipped
+  9. The AI docs — test counts in `.claude/docs/testing.md` and the `.claude/docs/engine/`
+     and `.claude/docs/frontend/` files for any feature that shipped
   10. `cheat2001/homebrew-tap` repo — `Casks/angkorgit.rb` `version` + `sha256`
      (`shasum -a 256` of the new universal dmg, AFTER the release artifacts are
      published; see docs/Distribution.md §4)

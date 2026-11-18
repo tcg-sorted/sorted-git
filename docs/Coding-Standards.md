@@ -5,7 +5,7 @@
 The codebase deliberately contains **no inline comments** — the code must say
 what it does through naming and structure. Everything worth explaining lives in
 real documentation instead: behavior and architecture in `docs/`, hard-won
-pitfalls in `CLAUDE.md` (gotchas G1+), user-visible behavior in `CHANGELOG.md`.
+pitfalls in `.claude/docs/gotchas/` (G1+, indexed from `CLAUDE.md`), user-visible behavior in `CHANGELOG.md`.
 The only lines that may look like comments are machine directives:
 `// eslint-disable…`, `@ts-expect-error`, `/// <reference…>`, and Rust/clippy
 attributes. PRs that add explanatory comments move the content to docs instead.
