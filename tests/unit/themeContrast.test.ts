@@ -49,6 +49,13 @@ const palettes: Array<[string, Vars]> = [
     ]),
 ];
 
+const lightNames = new Set([
+  'light',
+  ...[...blocks(read('themes.css')).entries()]
+    .filter(([selector, { light }]) => selector.startsWith('.theme-') && light)
+    .map(([selector]) => selector.slice('.theme-'.length)),
+]);
+
 const tierOf = (vars: Vars, key: string) =>
   Math.min(contrast(vars[key], vars.background), contrast(vars[key], vars.surface));
 
@@ -66,6 +73,29 @@ describe('theme text contrast', () => {
     expect(faint).toBeGreaterThanOrEqual(4.5);
     expect(body).toBeGreaterThan(muted);
     expect(muted).toBeGreaterThan(faint);
+  });
+
+  const lightPalettes = palettes.filter(([name]) => lightNames.has(name));
+
+  it('checks the accent on every light theme', () => {
+    expect(lightPalettes.length).toBe(5);
+  });
+
+  it.each(lightPalettes)('%s keeps accent text and labels on accent fills readable', (_, vars) => {
+    expect(tierOf(vars, 'primary')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(vars['primary-foreground'], vars.primary)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  const accents: Array<[string, Vars]> = [...tokens.entries()]
+    .filter(([selector]) => selector.startsWith('.light.accent-'))
+    .map(([selector, { vars }]): [string, Vars] => [
+      selector,
+      { ...lightBase, ...vars },
+    ]);
+
+  it.each(accents)('%s keeps accent text and labels on accent fills readable', (_, vars) => {
+    expect(tierOf(vars, 'primary')).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(vars['primary-foreground'], vars.primary)).toBeGreaterThanOrEqual(4.5);
   });
 
   it.each(palettes)('%s gives code comments their own colour', (_, vars) => {

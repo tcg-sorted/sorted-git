@@ -146,6 +146,7 @@
 }
 
 .theme-catppuccin-latte {
+  --primary: 212.1 99.1% 40%;
   --background: 220 23.1% 94.9%;
   --surface: 220 22% 92%;
   --surface-raised: 220 20.7% 88.6%;
