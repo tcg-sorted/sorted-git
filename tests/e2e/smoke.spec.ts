@@ -2892,7 +2892,7 @@ test('the fonts card changes the interface, code and terminal fonts and remember
   await expect(reopened.getByRole('combobox', { name: 'Terminal font', exact: true })).toContainText('Menlo');
   await reopened.getByRole('button', { name: 'Reset fonts' }).click();
   await expect.poll(() => rootVar('--font-sans')).not.toContain('Helvetica Neue');
-  await expect(reopened.getByRole('combobox', { name: 'Interface font' })).toContainText('Inter');
+  await expect(reopened.getByRole('combobox', { name: 'Interface font' })).toContainText('Archivo');
   await expect(reopened.getByRole('button', { name: 'Reset fonts' })).toHaveCount(0);
 });
 

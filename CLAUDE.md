@@ -21,7 +21,7 @@ craftsmanship from Cambodia 🇰🇭.
   12 / 25 before the single-instance plugin and blame) — a single-arch build is 13 MB
   installed. (vs ~1 GB for Electron-based clients.) Re-measure
   before quoting it: `du -sh target/universal-apple-darwin/release/bundle/macos/AngKorGit.app`
-- Angkor Dusk theme by default for new installs (16 themes total, dark + light), Temple Gold `#D97706` brand accent
+- Styled with the company's Sorted design system: Sorted dark theme by default for new installs (14 themes total, dark + light), Sorted Blue the single accent, Sorted S monogram as the logo. The product name stays AngKorGit. Details in [design-system.md](.claude/docs/design-system.md)
 - Keyboard-first (⌘K palette), beginner-friendly (visual conflict resolver, confirm
   dialogs, undo/redo), performance-first (virtualized graph & diffs, 100k-commit repos stay smooth)
 
@@ -36,7 +36,7 @@ craftsmanship from Cambodia 🇰🇭.
 | State | **Zustand 5** (per-feature stores, some persisted) | |
 | Animation | **Framer Motion 11** (subtle; splash logo draw) | |
 | Router | react-router-dom 6 (MemoryRouter: `/welcome`, `/repo`) | |
-| Icons / fonts | lucide-react · Inter Variable + JetBrains Mono (self-hosted @fontsource) | |
+| Icons / fonts | lucide-react · Archivo Variable + JetBrains Mono (self-hosted @fontsource) | |
 | Key libs | @tanstack/react-virtual, react-resizable-panels, cmdk, sonner, @xterm/xterm, highlight.js (lib/core + 26 langs) | |
 | Rust deps | tauri-plugin-dialog/opener, portable-pty, keyring 3, notify-debouncer-mini, reqwest (rustls), which 7, base64, thiserror, same-file (hook paths by file identity); tempfile for atomic rebase baseline writes and tests | |
 
@@ -82,7 +82,7 @@ no build step for packages).
 | `pnpm website` | dev-server the marketing site (http://localhost:4321/) |
 | `pnpm website:build` / `pnpm website:preview` | build / preview the static site |
 | `pnpm website:images` | regenerate WebP screenshots + og.png from `docs/assets` (sharp) |
-| `pnpm icons` | regenerate placeholder icons (then `tauri icon` for .icns/.ico) |
+| `pnpm icons` | regenerate the Sorted monogram app icon from `src-tauri/icons/source` (then `tauri icon` for .icns/.ico) |
 
 **Build gotchas (important):**
 - **Quit the running app before `tauri:build`** — the `.dmg` bundler script is flaky while the app runs (the `.app` itself still builds).
