@@ -7,7 +7,6 @@ import type {
   PullRequestInfo,
 } from './types';
 import { githubForgeProvider } from './providers/github';
-import { gitlabForgeProvider } from './providers/gitlab';
 import { bitbucketForgeProvider } from './providers/bitbucket';
 
 export interface ForgeProvider {
@@ -25,8 +24,6 @@ export function createForgeProvider(remote: ForgeRemote, http: HttpClient): Forg
   switch (remote.kind) {
     case 'github':
       return githubForgeProvider(remote, http);
-    case 'gitlab':
-      return gitlabForgeProvider(remote, http);
     case 'bitbucket':
       return bitbucketForgeProvider(remote, http);
     case 'bitbucket-server':

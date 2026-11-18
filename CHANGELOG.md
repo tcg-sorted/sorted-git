@@ -6,6 +6,13 @@ All notable changes to AngKorGit are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- **Avatars come from your connected GitHub account, and nothing else.** Commit
+  author avatars are looked up through the account you connected in Settings, once
+  per author, cached on your machine and paused when GitHub's rate limit is reached.
+  Authors without a match show their initials. AngKorGit no longer sends a hash of
+  every author's email address to Gravatar.
+
 ## [0.28.0] — 2026-11-15
 
 The hooks release. AngKorGit now runs the hooks Git runs after a checkout, a pull or

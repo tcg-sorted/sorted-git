@@ -27,7 +27,7 @@ import {
   cn,
   Textarea,
 } from '@angkorgit/design-system';
-import { aiCapabilities, defaultForgeTarget, forgeNoun, forgeTargets, sameForgeRepo, type ForgeUser } from '@angkorgit/core';
+import { aiCapabilities, defaultForgeTarget, forgeTargets, sameForgeRepo, type ForgeUser } from '@angkorgit/core';
 import { ipc, openExternal } from '@/core/ipc';
 import { isHookFailure, reportHookFailure } from '@/components/hookFailure';
 import { toastOutcome } from '@/shared/toastOutcome';
@@ -101,7 +101,6 @@ export function CreatePrDialog() {
     () => (targetRemote && path ? forgeProviderFor(path, targetRemote) : null),
     [targetRemote, path],
   );
-  const noun = forgeNoun(provider?.kind);
 
   const remotePrefix = `${activeTargetName}/`;
   const baseOptions = useMemo(() => {
@@ -284,7 +283,7 @@ export function CreatePrDialog() {
         ...(crossRepo && remote ? { sourceRepo: { owner: remote.owner, repo: remote.repo } } : {}),
       });
       closeDialog();
-      toast.success(`${provider.label} ${noun} #${pr.number} created`, {
+      toast.success(`${provider.label} pull request #${pr.number} created`, {
         action: { label: 'Open', onClick: () => void openExternal(pr.url) },
       });
       void useForge.getState().load(true);
@@ -302,12 +301,12 @@ export function CreatePrDialog() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GitPullRequest className="size-4 shrink-0 text-primary" />
-            Create {noun}
+            Create pull request
           </DialogTitle>
           <DialogDescription>
             {crossRepo && remote && targetRemote
-              ? `Opens a ${noun} from ${remote.owner}/${remote.repo} into ${targetRemote.owner}/${targetRemote.repo} on ${provider.label}.`
-              : `Opens a ${noun} on ${provider.label} for the current branch.`}
+              ? `Opens a pull request from ${remote.owner}/${remote.repo} into ${targetRemote.owner}/${targetRemote.repo} on ${provider.label}.`
+              : `Opens a pull request on ${provider.label} for the current branch.`}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3">
@@ -487,7 +486,7 @@ export function CreatePrDialog() {
           {!notPushed && unpushed > 0 && (
             <DialogNote tone="attention">
               {unpushed} commit{unpushed === 1 ? '' : 's'} on this branch {unpushed === 1 ? 'is' : 'are'} not
-              pushed yet and will not be part of the {noun}.
+              pushed yet and will not be part of the pull request.
             </DialogNote>
           )}
           {error && <p className="text-xs text-danger [overflow-wrap:anywhere]">{error}</p>}
@@ -501,7 +500,7 @@ export function CreatePrDialog() {
             onClick={() => void submit()}
           >
             {submitting && <Spinner className="size-3.5" />}
-            Create {noun}
+            Create pull request
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -20,9 +20,6 @@ export function pullRequestUrl(remoteUrl: string, branch: string): string | null
     }
     return null;
   }
-  if (hostname.includes('gitlab')) {
-    return `${base}/-/merge_requests/new?merge_request%5Bsource_branch%5D=${encoded}`;
-  }
   if (hostname.includes('github')) {
     return `${base}/compare/${encoded}?expand=1`;
   }
