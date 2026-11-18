@@ -7,6 +7,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:1420',
     viewport: { width: 1440, height: 900 },
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
   },
   webServer: {
     command: 'pnpm --filter @angkorgit/desktop dev',
