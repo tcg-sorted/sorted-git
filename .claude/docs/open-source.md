@@ -33,4 +33,7 @@ opened four bot PRs at once, all closed), so dependency bumps land by hand in a
 that way); secret scanning + push protection on. The `commits` CI job
 (PR-only) fails on tool-generated trailers — `Co-authored-by` naming a coding
 agent, "Generated with/by", 🤖 — while leaving real people's
-`users.noreply.github.com` co-authors alone.
+`users.noreply.github.com` co-authors alone. EXCEPTION (owner decision 2026-11-18):
+`Co-authored-by: Claude …` / Anthropic trailers are ALLOWED — the owner's own workflow
+commits with Claude Code and requires that trailer, so `claude` and `anthropic` were
+removed from the job's pattern; every other tool name is still rejected.
