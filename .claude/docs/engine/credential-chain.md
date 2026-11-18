@@ -3,8 +3,9 @@
 From §5 Rust engine. See also `engine/core/remote.md`, `engine/core/accounts.md` and gotchas G17–G23, G29. [Back to the index](../../../CLAUDE.md)
 
 **Credential chain** (remote.rs `make_callbacks`, in order):
-1. App **accounts** matched by remote host (accounts::candidates — GitLab tokens never sent
-   to GitHub): the repo's profile-bound account first (angkorgit.accounts repo config, read
+1. App **accounts** matched by remote host (accounts::candidates — a token is only offered
+   to its own host, and accounts::host_of_url only matches https:// remotes, so a plain
+   http remote never receives an account token): the repo's profile-bound account first (angkorgit.accounts repo config, read
    into a thread_local by prime_account_bindings at each fetch/push/push_tag/clone entry —
    see G29), then the host default, then remaining accounts — one per retry, each offered once
 2. SSH agent → `~/.ssh/id_ed25519`/`id_rsa` key files

@@ -37,7 +37,7 @@ Source: `apps/desktop/src/features/forge` (from §6 Frontend). [Back to the inde
 │                               transport failures store BOTH a friendly error ("Could
 │                               not reach <host>…", matched on ^request failed:/error
 │                               sending request — never on provider errors, whose
-│                               "GitLab request failed (409)" must stay verbatim) and
+│                               "GitHub request failed (409)" must stay verbatim) and
 │                               errorDetail (raw, shown in the row tooltip);
 │                               StatusBar/palette browser-link fallback uses the same
 │                               picked remoteUrl),
@@ -55,9 +55,7 @@ Source: `apps/desktop/src/features/forge` (from §6 Frontend). [Back to the inde
 │                               the TARGET remote (base branches, default branch and
 │                               reviewers come from it) and createPullRequest gets
 │                               sourceRepo = the fork's owner/repo — github head
-│                               `owner:branch`, gitlab POSTs on the SOURCE project with
-│                               target_project_id fetched from the target, bitbucket
-│                               source.repository.full_name; the sidebar PR LIST still
+│                               `owner:branch`, bitbucket source.repository.full_name; the sidebar PR LIST still
 │                               shows the picked remote's PRs, not upstream's —, base
 │                               Select from the target remote's branches pre-picked via
 │                               provider.defaultBranch,

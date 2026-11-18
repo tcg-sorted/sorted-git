@@ -40,21 +40,36 @@ core/demo.ts                  ← deterministic 400-commit synthetic repo for de
                                 FULL profile via applyProfileToRepo, chip after branch
                                 name shows the assignment; push goes through runPush →
                                 ensureRepoProfile, sidebar toggle), CommandPalette (cmdk),
-                                Avatar (Gravatar SHA-256 + initials fallback + failure
-                                cache; FORGE FALLBACK (backlog item 2 shipped 2026-09-12,
-                                local only until the next release): an optional `oid` prop
-                                — GraphRow, CommitDetails, FileHistoryPanel and BlameView
-                                pass the commit oid — lets a Gravatar 404 fall through to
-                                features/forge/avatars.ts forgeAvatarFor(email, sha), which
-                                asks the picked remote's ForgeProvider.authorAvatar (github:
-                                /repos/{o}/{r}/commits/{sha} author.avatar_url, bitbucket:
-                                /repositories/{o}/{r}/commit/{sha} author.user avatar,
-                                gitlab: /api/v4/avatar?email= — GitLab is the only forge
-                                with an email lookup) ONLY when the forge store has an
-                                account and settings.showPullRequests is on; one in-flight
-                                promise per remote+email (module Map), resolved URLs kept in
-                                Avatar's forgeUrls map so remounts skip Gravatar entirely;
-                                a forge image that fails clears its entry and shows initials; a layout effect checks img.complete because a
+                                Avatar (FORGE AVATARS ONLY, initials fallback — NO GRAVATAR:
+                                a security review flagged the SHA-256 email hash sent to
+                                gravatar.com for every author, so it was removed 2026-11-18
+                                and no author email or hash may leave the machine except
+                                through the authenticated forge proxy): the `oid` prop —
+                                GraphRow, CommitDetails, FileHistoryPanel and BlameView pass
+                                the commit oid — feeds features/forge/avatars.ts
+                                forgeAvatarFor(email, sha), which asks the picked remote's
+                                ForgeProvider.authorAvatar (github: /repos/{o}/{r}/commits/
+                                {sha} author.avatar_url, bitbucket: /repositories/{o}/{r}/
+                                commit/{sha} author.user avatar, both via forge_request) ONLY when the
+                                forge store has an account and settings.showPullRequests is
+                                on, never for unpushed or all-zero (uncommitted blame) oids.
+                                Requests go through core forge/avatarResolver.ts
+                                createAvatarResolver: one resolver per forge host, cache by
+                                normalized email in memory AND localStorage
+                                `angkorgit-avatars:<host>` (hits 7 days, misses — author not
+                                linked to a forge user — 1 day, 5000 entries, oldest
+                                evicted), ONE in-flight request per email whatever the sha,
+                                at most 4 concurrent, a 404/422 (commit not on the forge)
+                                lets the next commit of that author try (3 shas max per
+                                session), a 403 rate limit / 429 pauses every lookup for 15
+                                min, other failures back the email off for 5 min, non-https
+                                URLs dropped; sizedAvatarUrl adds `s=<2×size>` on
+                                githubusercontent URLs. Avatar re-runs when forgeAvatarKey
+                                (repo + host + account) changes, so rows rendered before the
+                                forge store loaded pick their avatar up; an Avatar without an
+                                oid (Settings profiles) shows a cached avatar for that email
+                                or initials; an image that fails is remembered in brokenUrls
+                                and shows initials; a layout effect checks img.complete because a
                                 cache-restored image can finish before onLoad attaches —
                                 remounted graph rows after a diff round-trip stayed
                                 transparent without it), confirm.tsx (promise-based confirmDialog +

@@ -2,10 +2,10 @@
 
 [Back to the index](../../CLAUDE.md)
 
-1. OAuth device-flow "Sign in with GitHub/GitLab" popup (needs registering an OAuth app;
+1. OAuth device-flow "Sign in with GitHub" popup (needs registering an OAuth app;
    Accounts tab is the foundation).
-2. Provider avatars via connected accounts (GitLab self-hosted `/api/v4/avatar`, GitHub API)
-   layered over Gravatar.
+2. ~~Provider avatars via connected accounts~~ shipped; since 2026-11-18 they are the only
+   avatar source (Gravatar removed).
 3. File-tree view for the working copy (deep C# paths); prev/next-file arrows in DiffPanel.
 4. ~~Blame~~ shipped 2026-09-12 (BlamePanel). 5. Worktree follow-ups: start an
    installed AI CLI inside a worktree, per-repo post-create setup command, merged badge with

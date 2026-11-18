@@ -19,5 +19,9 @@ Source: `apps/desktop/src-tauri/src/core/accounts.rs` (from §5 Rust engine). [B
 │                       (ensure_defaults), candidates(host, preferred) for auth
 │                       ordering, update_check/mark_unverified for health. Pure
 │                       list-manipulation helpers (upsert/ordered_for_host) are
-│                       module-tested without keyring (see G29)
+│                       module-tested without keyring (see G29); a token is only
+│                       offered to its own host, and host_of_url only matches
+│                       https:// remotes, so a plain http remote never receives an
+│                       account token; stored gitlab/gitlab-self accounts are
+│                       dropped when accounts.json loads (GitLab was removed)
 ```

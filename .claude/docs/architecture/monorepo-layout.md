@@ -102,7 +102,7 @@ angkorgit/
 │       ├── conflicts/parse.ts ← conflict-marker parser + serializer (lossless)
 │       ├── forge/             ← forge layer (mirrors the ai/ adapter pattern):
 │       │                        remote.ts (parseRemote + parseForgeRemote → kind/host/
-│       │                        owner/repo; gitlab subgroups; bitbucket /scm/ server
+│       │                        owner/repo; bitbucket /scm/ server
 │       │                        shape is its OWN kind 'bitbucket-server' so cloud-vs-
 │       │                        server is decided once at parse time; pickForgeRemote:
 │       │                        HEAD-upstream remote first, then 'origin', then first —
@@ -110,36 +110,40 @@ angkorgit/
 │       │                        NEVER remotes[0]; DECLARED HOSTS (issue #32, owner
 │       │                        direction 2026-09-22): registerForgeHosts([{host, kind}])
 │       │                        fills a module-level map that detectedForgeKind consults
-│       │                        AFTER the substring rules, so a self-hosted GitLab on
+│       │                        AFTER the substring rules, so a GitHub Enterprise on
 │       │                        code.example.com parses once the app seeds the map from
 │       │                        the connected accounts (forgeKindForProvider: github* →
-│       │                        github, gitlab*/gitlab-self → gitlab, bitbucket →
-│       │                        bitbucket, bitbucket-server); the parser stays pure and
+│       │                        github, bitbucket → bitbucket, bitbucket-server; anything
+│       │                        else → null); the parser stays pure and
 │       │                        sync — features/forge/hosts.ts seeds it in App.tsx on
 │       │                        mount and RepositoryPage re-seeds when Settings closes
 │       │                        before reloading the forge store; StatusBar shows a faint
 │       │                        "Connect <host>" button (data-unknown-forge-host, opens
 │       │                        Settings → accounts) when the picked remote parses but no
 │       │                        forge kind is known — the silent null the reporter hit),
-│       │                        shared.ts (toUnix, forgeNoun — the
-│       │                        merge-request/pull-request wording for ALL UI strings —
-│       │                        and pullRequestCheckoutSpec, the pure per-kind checkout
-│       │                        mapping the providers delegate to; gitlab fork MRs →
-│       │                        refs/merge-requests/N/head, bitbucket → null),
+│       │                        shared.ts (toUnix and pullRequestCheckoutSpec, the pure
+│       │                        per-kind checkout mapping the providers delegate to;
+│       │                        github fork PRs → refs/pull/N/head, bitbucket → null),
+│       │                        GITLAB WAS REMOVED in this fork (security review: its
+│       │                        account check and self-hosted API fallback sent tokens
+│       │                        over plain http): no gitlab ForgeKind, provider, account
+│       │                        option or "merge request" wording; GitLab remotes parse
+│       │                        to no forge and stored gitlab/gitlab-self accounts are
+│       │                        dropped when accounts.json loads,
 │       │                        types.ts (PullRequestInfo, CreatePullRequestInput,
 │       │                        ForgeUser, PullRequestCheckoutSpec, ForgeError),
 │       │                        shared.ts also owns createForgeJsonRequest — the ONE
 │       │                        transport helper (status check, ForgeError shaping,
-│       │                        JSON guard) all three adapters use; a new adapter is a
+│       │                        JSON guard) both adapters use; a new adapter is a
 │       │                        mapping file plus a message parser, never another copy
 │       │                        of the transport boilerplate —, provider.ts
 │       │                        (ForgeProvider: list/defaultBranch/listReviewerCandidates/
-│                        create (reviewerIds: gitlab embeds reviewer_ids, bitbucket
+│                        create (reviewerIds: bitbucket
 │                        embeds reviewers uuids, github does a follow-up
 │                        requested_reviewers POST and returns the PR even if that
 │                        follow-up fails)/checkoutSpec;
-│       │                        createForgeProvider — github + gitlab + bitbucket CLOUD
-│       │                        only, bitbucket server → null), providers/{github,gitlab,
+│       │                        createForgeProvider — github + bitbucket CLOUD
+│       │                        only, bitbucket server → null), providers/{github,
 │       │                        bitbucket}.ts (REST adapters over the injected HttpClient;
 │       │                        NO auth headers here — the Rust forge_request command
 │       │                        injects the account token; github.ts explainGithubCreateRefusal
