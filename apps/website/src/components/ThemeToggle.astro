@@ -2,7 +2,7 @@
   id="theme-toggle"
   type="button"
   aria-label="Toggle theme"
-  class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted transition-colors hover:bg-surface-raised hover:text-foreground"
+  class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors duration-[120ms] hover:bg-surface-raised hover:text-foreground"
 >
   <svg class="h-4 w-4 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <circle cx="12" cy="12" r="4" />
@@ -22,6 +22,6 @@
     root.classList.toggle('light', next === 'light');
     localStorage.setItem('angkorgit-theme', next);
     const meta = document.getElementById('theme-color');
-    if (meta) meta.setAttribute('content', next === 'dark' ? '#15100C' : '#F3EFE7');
+    if (meta) meta.setAttribute('content', next === 'dark' ? '#121212' : '#F7F7F7');
   });
 </script>
