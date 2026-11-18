@@ -1144,7 +1144,7 @@ export function SettingsDialog() {
                           className={cn(
                             'group flex flex-col overflow-hidden rounded-lg border text-left transition-colors',
                             settings.theme === t.id
-                              ? 'border-primary ring-1 ring-primary'
+                              ? 'border-border-strong ring-1 ring-border-strong'
                               : 'border-border hover:border-muted',
                           )}
                         >
@@ -1187,7 +1187,7 @@ export function SettingsDialog() {
                   <SettingCard
                     settingId="accent"
                     title="Accent color"
-                    description="Buttons, highlights and focus follow your accent. Graph and diff colors keep their meaning."
+                    description="Buttons and highlights follow your accent. Graph and diff colors keep their meaning."
                   >
                     <div className="flex items-center gap-3">
                       {ACCENTS.map((accent) => (

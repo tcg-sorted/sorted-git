@@ -40,7 +40,7 @@ export function PushRejectedDialog({
         <div className="flex flex-col gap-2">
           <button
             type="button"
-            className="flex items-start gap-3 rounded-md border border-border bg-surface px-3 py-2.5 text-left transition-colors enabled:hover:border-primary/60 enabled:hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex items-start gap-3 rounded-md border border-border bg-surface px-3 py-2.5 text-left transition-colors enabled:hover:border-primary/60 enabled:hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-60"
             onClick={onPullRebase}
             disabled={pullBlocked !== null}
             autoFocus={pullBlocked === null}

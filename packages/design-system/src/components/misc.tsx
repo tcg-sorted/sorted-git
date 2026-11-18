@@ -22,7 +22,7 @@ export const Badge = React.forwardRef<
     <span
       ref={ref}
       className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium leading-4',
+        'inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[11px] font-semibold leading-4',
         tones[tone],
         className,
       )}
@@ -54,7 +54,7 @@ export function Kbd({ className, ...props }: React.HTMLAttributes<HTMLElement>) 
   return (
     <kbd
       className={cn(
-        'inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-surface-raised px-1 font-mono text-[10px] font-medium text-muted',
+        'inline-flex h-5 min-w-5 items-center justify-center rounded-sm border border-border bg-surface-raised px-1 font-mono text-[10px] font-medium text-muted',
         className,
       )}
       {...props}
@@ -74,8 +74,8 @@ export const Switch = React.forwardRef<
     ref={ref}
     className={cn(
       'peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:opacity-50',
-      'data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-raised',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50',
+      'data-[state=checked]:bg-primary data-[state=unchecked]:bg-border',
       className,
     )}
     {...props}
@@ -92,8 +92,8 @@ export const Checkbox = React.forwardRef<
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      'peer size-4 shrink-0 rounded-sm border border-border shadow-sm transition-colors',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:cursor-not-allowed disabled:opacity-50',
+      'peer size-4 shrink-0 rounded-[4px] border border-border transition-colors',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50',
       'data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
       'data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground',
       className,
@@ -117,8 +117,8 @@ export const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-8 w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 text-sm text-foreground shadow-sm',
-      'focus:outline-none focus:ring-2 focus:ring-primary/60 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate',
+      'flex h-8 w-full items-center justify-between gap-2 rounded-lg border border-border bg-surface px-3 text-sm text-foreground',
+      'focus:outline-none focus:ring-2 focus:ring-focus disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate',
       className,
     )}
     {...props}
@@ -140,7 +140,7 @@ export const SelectContent = React.forwardRef<
       ref={ref}
       position={position}
       className={cn(
-        'z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-border bg-surface-overlay shadow-soft animate-slide-up',
+        'z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-border-subtle bg-glass shadow-soft backdrop-blur-glass animate-slide-up',
         className,
       )}
       {...props}
@@ -181,7 +181,7 @@ export const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn('px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wide text-faint', className)}
+    className={cn('px-2 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-wider text-faint', className)}
     {...props}
   />
 ));

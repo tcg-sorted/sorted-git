@@ -129,7 +129,7 @@ export function RepoGroupDialog() {
                     onClick={() => setColor(index)}
                     className={cn(
                       'flex size-7 items-center justify-center rounded-full transition-transform',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-overlay',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-overlay',
                       selected ? 'scale-110' : 'hover:scale-105',
                     )}
                     style={{ backgroundColor: repoGroupColor(index) }}

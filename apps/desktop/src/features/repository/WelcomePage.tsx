@@ -51,7 +51,6 @@ import {
   Logo,
   PaneEmpty,
   Spinner,
-  TemplePattern,
   cn,
 } from '@angkorgit/design-system';
 import type { RecentRepository } from '@angkorgit/core';
@@ -540,7 +539,6 @@ export function WelcomePage() {
       {titleBarInset.inset > 0 && (
         <div data-tauri-drag-region className="absolute inset-x-0 top-0" style={{ height: titleBarInset.height }} />
       )}
-      <TemplePattern className="[mask-image:radial-gradient(ellipse_at_center,transparent_30%,black_75%)]" />
       <div className="relative w-full max-w-3xl">
         <div className="mb-10 flex items-center gap-4">
           <div className="text-foreground">

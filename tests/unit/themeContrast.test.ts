@@ -54,7 +54,7 @@ const tierOf = (vars: Vars, key: string) =>
 
 describe('theme text contrast', () => {
   it('covers every theme', () => {
-    expect(palettes.length).toBe(16);
+    expect(palettes.length).toBe(14);
   });
 
   it.each(palettes)('%s keeps body, muted and faint text readable and in order', (_, vars) => {

@@ -4152,7 +4152,7 @@ test('switching between dark and light recolours every control in the same frame
   await page.goto('/');
   await page.getByText('angkorgit', { exact: true }).first().click();
   await expect(page.getByPlaceholder('Search commits…')).toBeVisible({ timeout: 10_000 });
-  for (const theme of ['light', 'angkor-dusk']) {
+  for (const theme of ['light', 'dark']) {
     const lagging = await page.evaluate(async (theme) => {
       const { useSettings } = await import('/src/features/settings/store.ts');
       const elements = [...document.querySelectorAll<HTMLElement | SVGElement>('body *')];

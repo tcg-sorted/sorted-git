@@ -166,7 +166,7 @@ export async function demoScan(root: string): Promise<RepositoryScan> {
 export const demoFonts = [
   { family: 'Fira Code', monospaced: true },
   { family: 'Helvetica Neue', monospaced: false },
-  { family: 'Inter', monospaced: false },
+  { family: 'Archivo', monospaced: false },
   { family: 'JetBrains Mono', monospaced: true },
   { family: 'Menlo', monospaced: true },
   { family: 'Monaco', monospaced: true },

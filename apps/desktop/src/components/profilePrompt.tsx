@@ -60,7 +60,7 @@ export function ProfilePromptHost() {
               key={profile.id}
               ref={index === 0 ? firstProfileRef : undefined}
               type="button"
-              className="flex items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:border-primary/60 hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+              className="flex items-center gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:border-primary/60 hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
               onClick={() => settle(profile)}
             >
               <UserRound className="size-4 shrink-0 text-muted" />
