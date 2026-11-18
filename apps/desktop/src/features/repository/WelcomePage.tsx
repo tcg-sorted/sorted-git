@@ -547,8 +547,8 @@ export function WelcomePage() {
             <Logo size={56} />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              AngKor<span className="text-primary">Git</span>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+              AngKorGit
             </h1>
             <p className="text-sm text-muted">Everyday Git, made delightful.</p>
           </div>
