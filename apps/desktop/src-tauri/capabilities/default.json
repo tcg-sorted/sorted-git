@@ -10,8 +10,6 @@
     "core:window:allow-internal-toggle-maximize",
     "core:webview:allow-set-webview-zoom",
     "dialog:default",
-    "opener:default",
-    "process:default",
-    "updater:default"
+    "opener:default"
   ]
 }

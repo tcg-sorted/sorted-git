@@ -13,7 +13,6 @@ import {
   Check,
   ChevronsDownUp,
   Code,
-  Download,
   FileClock,
   FolderGit2,
   FolderOpen,
@@ -690,16 +689,6 @@ export function CommandPalette({ onRefresh }: { onRefresh: () => Promise<void> }
               }}
             />
           )}
-          <PaletteItem
-            icon={<Download />}
-            label="Check for updates"
-            onSelect={() => {
-              close();
-              void import('@/features/updater/check').then(({ checkForUpdates }) =>
-                checkForUpdates({ silent: false }),
-              );
-            }}
-          />
         </Command.Group>
         </>
         )}

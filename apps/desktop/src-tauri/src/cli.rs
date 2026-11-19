@@ -200,9 +200,16 @@ pub fn uninstall() -> AppResult<()> {
 mod user_path {
     use std::path::Path;
 
-    fn run(script: String) -> std::io::Result<()> {
+    const DIR_VAR: &str = "ANGKORGIT_CLI_DIR";
+
+    const ADD: &str = "$dir = $env:ANGKORGIT_CLI_DIR; $p = [Environment]::GetEnvironmentVariable('Path', 'User'); if (-not (($p -split ';') -contains $dir)) { [Environment]::SetEnvironmentVariable('Path', ((@($p, $dir) | Where-Object { $_ }) -join ';'), 'User') }";
+
+    const REMOVE: &str = "$dir = $env:ANGKORGIT_CLI_DIR; $p = [Environment]::GetEnvironmentVariable('Path', 'User'); $kept = ($p -split ';') | Where-Object { $_ -and $_ -ne $dir }; [Environment]::SetEnvironmentVariable('Path', ($kept -join ';'), 'User')";
+
+    fn run(script: &str, dir: &Path) -> std::io::Result<()> {
         crate::proc::hidden("powershell")
-            .args(["-NoProfile", "-NonInteractive", "-Command", &script])
+            .args(["-NoProfile", "-NonInteractive", "-Command", script])
+            .env(DIR_VAR, dir)
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
@@ -210,22 +217,25 @@ mod user_path {
             .map(|_| ())
     }
 
-    fn literal(dir: &Path) -> String {
-        dir.to_string_lossy().replace('\'', "''")
-    }
-
     pub fn add(dir: &Path) -> std::io::Result<()> {
-        run(format!(
-            "$dir = '{}'; $p = [Environment]::GetEnvironmentVariable('Path', 'User'); if (-not (($p -split ';') -contains $dir)) {{ [Environment]::SetEnvironmentVariable('Path', ((@($p, $dir) | Where-Object {{ $_ }}) -join ';'), 'User') }}",
-            literal(dir)
-        ))
+        run(ADD, dir)
     }
 
     pub fn remove(dir: &Path) -> std::io::Result<()> {
-        run(format!(
-            "$dir = '{}'; $p = [Environment]::GetEnvironmentVariable('Path', 'User'); $kept = ($p -split ';') | Where-Object {{ $_ -and $_ -ne $dir }}; [Environment]::SetEnvironmentVariable('Path', ($kept -join ';'), 'User')",
-            literal(dir)
-        ))
+        run(REMOVE, dir)
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn scripts_read_the_folder_from_the_environment() {
+            for script in [ADD, REMOVE] {
+                assert!(script.starts_with(&format!("$dir = $env:{DIR_VAR};")));
+                assert!(!script.contains("{}"));
+            }
+        }
     }
 }
 

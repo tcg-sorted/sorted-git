@@ -50,9 +50,6 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Updater artifact signing (free minisign key — see docs/Distribution.md).
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/desktop
           tagName: ${{ github.ref_name }}
@@ -88,12 +85,6 @@ jobs:
       SIGNING_POLICY: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'test-signing' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
       - name: Find the unsigned artifact
         id: unsigned
         shell: bash
@@ -140,36 +131,13 @@ jobs:
             }
           }
           "Signing request: ${{ steps.signpath.outputs.signing-request-web-url }}"
-      - name: Sign the installers for the updater
+      - name: Collect the signed installers
         shell: bash
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           mkdir release-assets
           find signed -type f \( -name '*.exe' -o -name '*.msi' \) -exec cp {} release-assets/ \;
-          cd apps/desktop
-          for file in ../../release-assets/*.exe ../../release-assets/*.msi; do
-            pnpm exec tauri signer sign "$file"
-            test -s "$file.sig"
-          done
-          cd ../..
           ls -l release-assets
       - name: Replace the release assets
         shell: bash
         run: gh release upload "$TAG" release-assets/* --clobber
-      - name: Update the updater manifest
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh release download "$TAG" -p latest.json -D manifest
-          nsis=$(cat release-assets/*-setup.exe.sig)
-          msi=$(cat release-assets/*.msi.sig)
-          jq --arg nsis "$nsis" --arg msi "$msi" '
-            .platforms |= with_entries(
-              if (.value.url | endswith("-setup.exe")) then .value.signature = $nsis
-              elif (.value.url | endswith(".msi")) then .value.signature = $msi
-              else . end)' manifest/latest.json > latest.json
-          jq '.platforms | with_entries(select(.key | startswith("windows")))' latest.json
-          gh release upload "$TAG" latest.json --clobber

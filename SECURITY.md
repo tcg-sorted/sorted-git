@@ -34,10 +34,10 @@ For transparency, the app's security-relevant surface is:
   CLI programs can be run.
 - **Network** — outbound only: git remotes you configure, the forge account you
   connect (pull requests, and commit author avatars looked up per commit through
-  that account; no email or email hash goes anywhere else), the AI provider you
-  explicitly configure, and the
-  updater, which checks GitHub Releases for a new signed build shortly after
-  startup. There is **no telemetry and no analytics.**
+  that account; no email or email hash goes anywhere else) and the AI provider
+  you explicitly configure. The auto-updater is disabled in this build, so the
+  app never checks for or downloads updates. There is **no telemetry and no
+  analytics.**
 - **PTY** — the built-in terminal runs your login shell in the repository
   directory, with your user's normal permissions.
 
