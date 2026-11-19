@@ -144,28 +144,35 @@ and re-run the failed job only: the unsigned artifact is kept for three days,
 and a re-run submits a fresh request. The draft's Windows assets are the
 unsigned ones until the job succeeds, so do not publish before it is green.
 
-## 3. Auto-updates — ACTIVE ✅ (free, Apple-independent)
+## 3. Auto-updates — DISABLED in this fork
 
-Updates are pull-based from GitHub releases and verified with the project's
-**own minisign key** before installing — a tampered download will never run.
+The upstream updater checked
+`https://github.com/cheat2001/angkorgit/releases/latest/download/latest.json`
+and verified downloads against the upstream author's minisign public key. A
+build of this fork therefore trusted binaries we never reviewed, so the
+updater was removed on 2026-11-18 until we ship our own feed.
 
-Already wired in the codebase:
-- Keypair generated; **private key: `~/.tauri/angkorgit.key` on the owner's
-  machine — BACK IT UP. If lost, existing installs can never update again.**
-  Public key: embedded in `tauri.conf.json → plugins.updater.pubkey`.
-- `tauri-plugin-updater` + `tauri-plugin-process` registered; capability
-  `updater:default`, `process:default`; `bundle.createUpdaterArtifacts: true`.
-- Frontend: silent check 5s after startup (`features/updater/check.ts`) →
-  "Update available" toast with **Update now** (download, verify, relaunch);
-  manual **Check for updates** in the Settings rail footer.
-- `release.yml` passes `TAURI_SIGNING_PRIVATE_KEY(_PASSWORD)` to tauri-action,
-  which then also generates and uploads `latest.json`.
+What was removed (the commit "fix(updater): disable the auto-updater" and
+"ci(release): build releases without updater signing"; reverting them restores
+the upstream wiring, which must NOT ship as is):
+- `plugins.updater` (endpoint + pubkey) in `tauri.conf.json`;
+  `bundle.createUpdaterArtifacts` is now `false`.
+- `tauri-plugin-updater` and `tauri-plugin-process` (Cargo.toml, lib.rs,
+  `@tauri-apps/plugin-updater` / `plugin-process` in package.json) and the
+  `updater:default` / `process:default` capabilities. Nothing else used the
+  process plugin; it only relaunched after an update.
+- `features/updater/check.ts`, the silent check 5 s after startup in
+  `App.tsx`, and the "Check for updates" entries in the status bar version
+  label, the command palette and the welcome page footer.
+- In `release.yml`: `TAURI_SIGNING_PRIVATE_KEY(_PASSWORD)` on tauri-action, the
+  minisign re-sign of the SignPath-signed Windows installers and the
+  `latest.json` rewrite.
 
-**[owner] one-time — done**: both GitHub secrets are configured (releases since
-0.2.0 ship `.sig` files and `latest.json`):
-- `TAURI_SIGNING_PRIVATE_KEY` — the contents of `~/.tauri/angkorgit.key`
-- `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` — set to an **empty value** (required:
-  without the env var Tauri tries an interactive prompt and headless builds fail).
+To bring an updater back, generate a company minisign keypair
+(`tauri signer generate`), keep the private key only as a CI secret, put the
+company public key and a company-controlled endpoint in `plugins.updater`,
+restore the pieces above, and re-add the re-sign + manifest steps after
+Windows code signing.
 
 ## 4. Homebrew cask **[live — own tap]**
 

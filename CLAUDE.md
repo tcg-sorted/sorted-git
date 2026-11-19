@@ -87,10 +87,10 @@ no build step for packages).
 **Build gotchas (important):**
 - **Quit the running app before `tauri:build`** — the `.dmg` bundler script is flaky while the app runs (the `.app` itself still builds).
 - `source ~/.cargo/env` before cargo commands (rustup-installed toolchain).
-- With updater `createUpdaterArtifacts` on, `tauri build` exits 1 AFTER producing the
-  .app unless `TAURI_SIGNING_PRIVATE_KEY=$(cat ~/.tauri/angkorgit.key)` (+ empty
-  `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`) is exported — for local installs the .app is
-  still usable via `pnpm install:mac`.
+- The auto-updater is DISABLED in this fork (2026-11-18, see docs/Distribution.md §3):
+  its trust root was the upstream author's feed and minisign key. No updater plugin,
+  capability, endpoint or startup check exists, `createUpdaterArtifacts` is false and
+  releases need no `TAURI_SIGNING_PRIVATE_KEY`.
 - Root pnpm scripts must run **from repo root**; background shells don't persist `cd`.
 - Rust fmt/clippy are CI gates: `cargo fmt --check && cargo clippy --all-targets -- -D warnings`.
 - `pnpm install:mac` quits a running AngKorGit first (pkill) — a new binary copied under a

@@ -28,16 +28,15 @@
   Windows, Linux; attaches to draft GitHub release. WINDOWS CODE SIGNING
   (issue #49, SignPath Foundation approved 2026-10-08, wired 2026-10-09): the
   Windows build job uploads the NSIS setup.exe + .msi as a flat `windows-unsigned`
-  workflow artifact and a `sign-windows` job (needs: build, so `latest.json`
-  already carries every platform) submits it through
+  workflow artifact and a `sign-windows` job (needs: build) submits it through
   `signpath/github-action-submit-signing-request@v3` (org id + project slug
   `angkorgit` + artifact configuration slug `Windows_installers` hardcoded,
   policy from repo variable SIGNPATH_SIGNING_POLICY_SLUG
   falling back to `test-signing`; secret SIGNPATH_API_TOKEN), verifies with
   Get-AuthenticodeSignature (Valid + CN=SignPath Foundation only under
-  `release-signing`), re-runs `tauri signer sign` so the updater `.sig`s match
-  the signed bytes, `gh release upload --clobber`s the four assets and rewrites
-  the Windows signatures in `latest.json` by URL suffix. Artifact configuration
+  `release-signing`) and `gh release upload --clobber`s the two signed
+  installers. The auto-updater is disabled in this fork (2026-11-18), so there
+  are no updater `.sig` files and no `latest.json` to rewrite. Artifact configuration
   in `.github/signpath/artifact-configuration.xml` (uploaded to the SignPath
   project by hand). The SignPath GitHub App must be installed on the repo
   (the first test run failed with "Failed to retrieve GitHub App token"). Only the installers are signed, the inner angkorgit.exe is
@@ -71,13 +70,12 @@
   Before publishing: approve the SignPath signing request and wait for the
   `sign-windows` job to go green (the draft's Windows assets are unsigned until
   then).
-  After publishing: confirm the updater offered the release (installed app
-  version flips), and that angkorgit.app shows the new version (manually
+  After publishing: confirm that angkorgit.app shows the new version (manually
   dispatch the Website workflow if the release-triggered deploy served stale).
 - **Release notes follow a fixed house template** (see any published release, e.g.
   v0.3.0 — the owner rejects ad-hoc formats): (1) themed opening line ("The X
-  release. …") + the standing updater sentence "Already on AngKorGit? **Your app
-  will offer this update by itself** — one click, signature-verified. 🏛️";
+  release. …") (the old standing updater sentence "Your app will offer this
+  update by itself" is dropped while the updater is disabled);
   (2) `## Highlights` — emoji-prefixed bold titles written as user benefits in
   narrative voice, NOT changelog Added/Changed categories; (3) `## Fixed` — plain
   bullets, lead with the user-visible symptom; (4) optional `## Removed` /

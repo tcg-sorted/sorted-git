@@ -8,8 +8,8 @@ privacy surface: no telemetry), `CHANGELOG.md` (Keep-a-Changelog; update
 PR template with the quality checklist. Crash resilience:
 `components/ErrorBoundary.tsx` wraps the Shell — never let a render error
 white-screen the app. `docs/Distribution.md` documents signing/notarization,
-the updater plan (pull-based from GitHub releases; needs owner keys before the
-plugin can be added), and the Homebrew cask.
+why the auto-updater is disabled in this fork and how to re-enable it (§3),
+and the Homebrew cask.
 
 **GitHub repo settings (set 2026-09-11, not visible in the code):** squash merges
 only, subject = PR title, body = BLANK (the default COMMIT_MESSAGES body would have
