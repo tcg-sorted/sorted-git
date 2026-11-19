@@ -32,10 +32,12 @@ For transparency, the app's security-relevant surface is:
   CLI, Codex, Gemini CLI, OpenCode, Antigravity, Cursor CLI), AngKorGit runs that binary as a
   local subprocess with your user's permissions. Only a fixed allowlist of known
   CLI programs can be run.
-- **Network** — outbound only: git remotes you configure, Gravatar (avatar
-  lookup by email hash) and the AI provider you explicitly configure. The
-  auto-updater is disabled in this build, so the app never checks for or
-  downloads updates. There is **no telemetry and no analytics.**
+- **Network** — outbound only: git remotes you configure, the forge account you
+  connect (pull requests, and commit author avatars looked up per commit through
+  that account; no email or email hash goes anywhere else) and the AI provider
+  you explicitly configure. The auto-updater is disabled in this build, so the
+  app never checks for or downloads updates. There is **no telemetry and no
+  analytics.**
 - **PTY** — the built-in terminal runs your login shell in the repository
   directory, with your user's normal permissions.
 

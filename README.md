@@ -44,7 +44,7 @@ It's free, MIT licensed, and there is no account, no telemetry and no cloud. Eve
 
 **Everything else you reach for.** Stage files, hunks or single lines. Commit with a summary and a description, amend, revert, reset. Interactive rebase, cherry-pick one or many, stash, tags, submodules. Diffs inline or side by side with word level highlighting, a minimap, image diffs and file history. A built-in terminal per repository. Real confirmation dialogs before anything destructive, and undo for the rest.
 
-**Remotes and accounts.** Fetch, pull and push through the same credential chain git uses. SSH keys and access tokens, several accounts on one host, identity profiles stored per repository and never in your global gitconfig. Pull requests from GitHub, GitLab and Bitbucket: list, check out, create, pick reviewers. Commit signing through your existing git config.
+**Remotes and accounts.** Fetch, pull and push through the same credential chain git uses. SSH keys and access tokens, several accounts on one host, identity profiles stored per repository and never in your global gitconfig. Pull requests from GitHub and Bitbucket: list, check out, create, pick reviewers. Commit signing through your existing git config.
 
 **AI, if you want it.** A commit message from the staged diff, a plain explanation of a commit or a conflict, a review of what you are about to commit, a pull request description. It uses the AI CLI you already log into (Claude Code, GitHub Copilot CLI, Codex, Gemini CLI, OpenCode, Antigravity, Cursor CLI), or an API key, or Ollama on your own machine. Requests go straight from your computer to the provider you chose. Every one of them has a Stop button.
 
@@ -138,7 +138,7 @@ The builds aren't signed with a paid certificate, so your OS asks once on first 
 1. Open the `.dmg` and drag AngKorGit into Applications. Don't run it from inside the dmg window, macOS would start it from a temporary location where permissions can't be saved.
 2. Launch it. macOS says the app cannot be opened. Close that, go to System Settings, Privacy & Security, scroll down and click Open Anyway. This happens once.
 3. The first time you open a repository in Desktop, Documents or Downloads, macOS asks for access to that folder. Allow, once per folder.
-4. If you connect a GitHub or GitLab account, the first git operation per session asks to read the token from your Keychain. Plain Allow is enough, Always Allow has no effect on unsigned apps.
+4. If you connect a GitHub or Bitbucket account, the first git operation per session asks to read the token from your Keychain. Plain Allow is enough, Always Allow has no effect on unsigned apps.
 
 If a permission dialog ever loops, reset the stale records and try again:
 

@@ -24,8 +24,6 @@ import {
 export type Theme =
   | 'dark'
   | 'light'
-  | 'angkor-dusk'
-  | 'angkor-dawn'
   | 'vscode-dark'
   | 'vscode-light'
   | 'github-dark'
@@ -47,10 +45,8 @@ export interface ThemeMeta {
 }
 
 export const THEMES: ThemeMeta[] = [
-  { id: 'dark', label: 'AngKor Dark', base: 'dark', swatch: { bg: '#0d1220', fg: '#e5e9f0', dots: ['#d97706', '#22c55e', '#38bdf8'] } },
-  { id: 'light', label: 'AngKor Light', base: 'light', swatch: { bg: '#f5f7fa', fg: '#1b2437', dots: ['#d97706', '#15803d', '#0369a1'] } },
-  { id: 'angkor-dusk', label: 'Angkor Dusk', base: 'dark', swatch: { bg: '#1e150d', fg: '#eae1d1', dots: ['#e08c16', '#22c55e', '#38bdf8'] } },
-  { id: 'angkor-dawn', label: 'Angkor Dawn', base: 'light', swatch: { bg: '#f3edde', fg: '#31251a', dots: ['#b45f06', '#15803d', '#0369a1'] } },
+  { id: 'dark', label: 'Sorted', base: 'dark', swatch: { bg: '#121212', fg: '#f7f7f7', dots: ['#357fff', '#4fd49d', '#fb7a58'] } },
+  { id: 'light', label: 'Sorted Light', base: 'light', swatch: { bg: '#f7f7f7', fg: '#121212', dots: ['#357fff', '#2b7b5b', '#c6200a'] } },
   { id: 'vscode-dark', label: 'VS Code Dark+', base: 'dark', swatch: { bg: '#1e1e1e', fg: '#d4d4d4', dots: ['#569cd6', '#ce9178', '#dcdcaa'] } },
   { id: 'vscode-light', label: 'VS Code Light+', base: 'light', swatch: { bg: '#ffffff', fg: '#333333', dots: ['#0000ff', '#a31515', '#795e26'] } },
   { id: 'github-dark', label: 'GitHub Dark', base: 'dark', swatch: { bg: '#0d1117', fg: '#c9d1d9', dots: ['#ff7b72', '#a5d6ff', '#d2a8ff'] } },
@@ -64,6 +60,19 @@ export const THEMES: ThemeMeta[] = [
   { id: 'ayu-dark', label: 'Ayu Dark', base: 'dark', swatch: { bg: '#0a0e14', fg: '#b3b1ad', dots: ['#ff8f40', '#c2d94c', '#ffb454'] } },
   { id: 'ayu-light', label: 'Ayu Light', base: 'light', swatch: { bg: '#fafafa', fg: '#5c6773', dots: ['#fa8d3e', '#86b300', '#399ee6'] } },
 ];
+
+export const DEFAULT_THEME: Theme = 'dark';
+
+const LEGACY_THEMES: Record<string, Theme> = {
+  'angkor-dusk': 'dark',
+  'angkor-dawn': 'light',
+};
+
+export function resolveTheme(id: string | null | undefined): Theme {
+  if (!id) return DEFAULT_THEME;
+  if (LEGACY_THEMES[id]) return LEGACY_THEMES[id];
+  return THEMES.some((t) => t.id === id) ? (id as Theme) : DEFAULT_THEME;
+}
 
 export const themeBase = (id: Theme): 'dark' | 'light' =>
   THEMES.find((t) => t.id === id)?.base ?? 'dark';
@@ -91,17 +100,24 @@ export function applyTheme(theme: Theme): void {
   });
 }
 
-export type AccentId = 'gold' | 'jade' | 'sapphire' | 'lotus' | 'crimson';
+export type AccentId = 'sorted' | 'jade' | 'sapphire' | 'lotus' | 'crimson';
 
 export const ACCENTS: Array<{ id: AccentId; label: string; color: string }> = [
-  { id: 'gold', label: 'Temple Gold', color: '#D97706' },
+  { id: 'sorted', label: 'Sorted Blue', color: '#357FFF' },
   { id: 'jade', label: 'Jade', color: '#10B981' },
-  { id: 'sapphire', label: 'Sapphire', color: '#3B82F6' },
+  { id: 'sapphire', label: 'Sapphire', color: '#829FFF' },
   { id: 'lotus', label: 'Lotus', color: '#EC4899' },
-  { id: 'crimson', label: 'Crimson', color: '#EF4444' },
+  { id: 'crimson', label: 'Crimson', color: '#FB7A58' },
 ];
 
-const ACCENT_CLASSES = ACCENTS.filter((a) => a.id !== 'gold').map((a) => `accent-${a.id}`);
+export const DEFAULT_ACCENT: AccentId = 'sorted';
+
+export function resolveAccent(id: string | null | undefined): AccentId {
+  if (!id || id === 'gold') return DEFAULT_ACCENT;
+  return ACCENTS.some((a) => a.id === id) ? (id as AccentId) : DEFAULT_ACCENT;
+}
+
+const ACCENT_CLASSES = ACCENTS.filter((a) => a.id !== DEFAULT_ACCENT).map((a) => `accent-${a.id}`);
 
 export function applyFonts(interfaceFamily: string, codeFamily: string): void {
   const root = document.documentElement.style;
@@ -120,7 +136,7 @@ function applyAccent(accent: AccentId): void {
   withoutTransitions(() => {
     const el = document.documentElement;
     el.classList.remove(...ACCENT_CLASSES);
-    if (accent !== 'gold') el.classList.add(`accent-${accent}`);
+    if (accent !== DEFAULT_ACCENT) el.classList.add(`accent-${accent}`);
   });
 }
 
@@ -266,8 +282,8 @@ const staleStatus = (status: AiConnectionStatus): AiConnectionStatus =>
 export const useSettings = create<SettingsState>()(
   persist(
     (set, get) => ({
-      theme: 'angkor-dusk',
-      accent: 'gold',
+      theme: DEFAULT_THEME,
+      accent: DEFAULT_ACCENT,
       zoom: 1,
       sshKeyPath: '',
       sshUseAgent: true,
@@ -432,6 +448,8 @@ export const useSettings = create<SettingsState>()(
         return {
           ...current,
           ...stored,
+          theme: resolveTheme(stored.theme ?? current.theme),
+          accent: resolveAccent(stored.accent ?? current.accent),
           ai: { ...current.ai, ...(stored.ai ?? {}) },
           aiStyle: {
             ...current.aiStyle,
@@ -442,10 +460,10 @@ export const useSettings = create<SettingsState>()(
         };
       },
       onRehydrateStorage: () => (state) => {
-        applyTheme(state?.theme ?? 'angkor-dusk');
+        applyTheme(resolveTheme(state?.theme));
         const zoom = state?.zoom ?? 1;
         if (zoom !== 1) applyZoom(zoom);
-        applyAccent(state?.accent ?? 'gold');
+        applyAccent(resolveAccent(state?.accent));
         applyReduceMotion(state?.reduceMotion ?? false);
         applyFonts(state?.interfaceFontFamily ?? '', state?.codeFontFamily ?? '');
         if (state && Object.keys(state.aiProfiles ?? {}).length === 0) {

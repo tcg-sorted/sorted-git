@@ -52,7 +52,7 @@ const pages = {
     steps: [
       'Run the installer. SmartScreen shows Windows protected your PC. Click More info, then Run anyway. The .msi on the releases page behaves the same way and suits a managed machine better.',
       'Open a repository from the welcome screen, or run angkorgit open . from a terminal after installing the command line tool under Settings, Git.',
-      'Nothing else. There is no account. Add a GitHub, GitLab or Bitbucket token under Settings, Authentication when you want pull requests in the sidebar.',
+      'Nothing else. There is no account. Add a GitHub or Bitbucket token under Settings, Authentication when you want pull requests in the sidebar.',
     ],
     terminal: {
       label: 'Windows (PowerShell)',
@@ -123,7 +123,7 @@ const others = PLATFORMS.filter((o) => o.id !== p.id);
   <Fragment slot="intro">{page.intro.map((t) => <p>{t}</p>)}</Fragment>
 
   <div class="mt-8 flex flex-wrap items-center gap-3">
-    <a href={url} class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground shadow-soft transition-opacity hover:opacity-90">
+    <a href={url} class="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors duration-[120ms] hover:bg-primary/85">
       Download for {p.name}
       <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m0 0 6-6m-6 6-6-6" /></svg>
     </a>
@@ -166,7 +166,7 @@ const others = PLATFORMS.filter((o) => o.id !== p.id);
         'A conflict resolver with both sides aligned and a result pane you edit in place',
         'Interactive rebase, cherry-pick, stashes, tags, submodules, worktrees',
         'Undo and redo for commits, checkouts, merges, rebases and resets',
-        'Pull requests for GitHub, GitLab and Bitbucket: list, check out, create',
+        'Pull requests for GitHub and Bitbucket: list, check out, create',
         'AI commit messages, explanations and reviews through the CLI you already have',
         'A ⌘K palette with every command, and a terminal per repository',
         '16 themes, dark and light. No account, no telemetry',
@@ -179,7 +179,7 @@ const others = PLATFORMS.filter((o) => o.id !== p.id);
   <figure class="mt-14">
     <picture>
       <source srcset="/screenshots/diff-light.webp" media="(prefers-color-scheme: light)" />
-      <img src="/screenshots/diff.webp" alt="AngKorGit showing a side by side diff with the commit graph behind it" class="w-full rounded-lg border border-border-subtle shadow-soft" loading="lazy" width="1512" height="949" />
+      <img src="/screenshots/diff.webp" alt="AngKorGit showing a side by side diff with the commit graph behind it" class="w-full rounded-2xl border border-border-subtle" loading="lazy" width="1512" height="949" />
     </picture>
     <figcaption class="mt-3 text-sm text-faint">The same interface on {p.name} as on every other platform.</figcaption>
   </figure>

@@ -196,8 +196,10 @@ export function App() {
         gap={8}
         toastOptions={{
           style: {
-            background: 'hsl(var(--surface-overlay))',
-            border: '1px solid hsl(var(--border))',
+            background: 'hsl(var(--glass) / var(--glass-alpha))',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid hsl(var(--border-subtle))',
             color: 'hsl(var(--foreground))',
             boxShadow: 'var(--shadow-soft)',
             borderRadius: 'var(--radius)',
@@ -205,7 +207,7 @@ export function App() {
           classNames: {
             success: '!border-l-[3px] !border-l-success',
             error: '!border-l-[3px] !border-l-danger',
-            warning: '!border-l-[3px] !border-l-primary',
+            warning: '!border-l-[3px] !border-l-trend',
             info: '!border-l-[3px] !border-l-info',
           },
         }}

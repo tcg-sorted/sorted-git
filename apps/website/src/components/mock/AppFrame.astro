@@ -4,6 +4,7 @@ import Sidebar from './Sidebar.astro';
 import Graph from './Graph.astro';
 import WorkingCopy from './WorkingCopy.astro';
 import { icon } from './icons';
+import Logo from '../Logo.astro';
 
 interface Props {
   dim?: boolean;
@@ -27,11 +28,7 @@ const { dim = false, highlightRow } = Astro.props;
       <span class="flex h-8 w-8 items-center justify-center" set:html={icon('home')} />
       <span class="flex h-8 w-8 items-center justify-center" set:html={icon('panel')} />
       <span class="ml-1 flex items-center gap-2">
-        <svg width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-          <g stroke="#D97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6 L27 20 L27 30 L37 30 L37 20 Z" /><path d="M16 16 L12.5 26 L12.5 34 L19.5 34 L19.5 26 Z" /><path d="M48 16 L44.5 26 L44.5 34 L51.5 34 L51.5 26 Z" /></g>
-          <g stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"><path d="M16 40 C16 48 24 46 32 46" /><path d="M48 40 C48 48 40 46 32 46" /><path d="M32 36 V 54" /></g>
-          <circle cx="16" cy="38" r="3.5" fill="#D97706" /><circle cx="48" cy="38" r="3.5" fill="#D97706" /><circle cx="32" cy="57" r="3.5" fill="currentColor" />
-        </svg>
+        <Logo size={22} />
         <span class="flex flex-col leading-tight">
           <span class="flex items-center gap-1 text-[14px] font-semibold text-foreground">angkorgit (demo) <span set:html={icon('chevronDown', 'h-3 w-3 text-faint')} /></span>
           <span class="font-mono text-[11px] text-faint">main</span>

@@ -48,7 +48,7 @@ AngKorGit follows Clean Architecture with feature-based folders. Dependencies po
 
 **AI is an adapter registry.** Features call capabilities (`generateCommitMessage`, `explainConflict`, …) against the `AiProvider` interface. API providers (OpenAI, Anthropic, Gemini, Ollama, LM Studio) are created from config; HTTP goes through an injected transport implemented by a Rust proxy (no CORS, keys stay out of webview fetch). The `cli` provider is different: it runs an AI CLI already installed on the machine (Claude Code, GitHub Copilot CLI, Codex, Gemini CLI, OpenCode, Antigravity, Cursor CLI) as an allowlisted local subprocess via `ai_cli.rs` — the user's own login and quota, no API key. Adding an API provider touches one file; adding a CLI agent touches `cliAgents.ts` plus the `ai_cli.rs` allowlist.
 
-**Credentials are layered, host-scoped, and never global.** App-managed accounts (tokens in the OS keyring under AngKorGit's own service, matched to remotes by host) come first, then SSH agent/keys, then the system `git credential` stack — so a GitLab token is never offered to GitHub. The same philosophy applies to committer identity: profiles apply to a repository's local config only, never the shared global gitconfig other tools fight over.
+**Credentials are layered, host-scoped, and never global.** App-managed accounts (tokens in the OS keyring under AngKorGit's own service, matched to remotes by host) come first, then SSH agent/keys, then the system `git credential` stack — so one host's token is never offered to another. The same philosophy applies to committer identity: profiles apply to a repository's local config only, never the shared global gitconfig other tools fight over.
 
 **Undo/redo as recorded transitions.** Every mutating operation runs through a `tracked()` wrapper that snapshots HEAD before/after. Undo applies the inverse (soft reset for commits, ref restore for branch deletion, …) and validates the repository hasn't moved since — corrupting-the-repo is structurally prevented, and hard-reset-style undos refuse to run over uncommitted work.
 
@@ -59,7 +59,7 @@ AngKorGit follows Clean Architecture with feature-based folders. Dependencies po
 ## Extension points (future features)
 
 - **Plugins** — the command palette, sidebar sections and inspector tabs are list-driven; a plugin host can contribute entries without touching feature internals. The IPC layer is a single object that can be wrapped/instrumented.
-- **Forge integrations (GitHub/GitLab/Azure/Bitbucket)** — planned as `packages/forge` with one adapter per provider mirroring the AI registry pattern; PR/issue viewers become new `features/*` folders.
+- **Forge integrations (GitHub/Azure/Bitbucket)** — planned as `packages/forge` with one adapter per provider mirroring the AI registry pattern; PR/issue viewers become new `features/*` folders.
 - **Worktrees** — the engine already opens repositories by path; a worktree list command and a repo-switcher entry are the only additions needed.
 
 ## Error handling

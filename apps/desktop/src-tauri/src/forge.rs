@@ -1,4 +1,5 @@
 use base64::Engine;
+use reqwest::Url;
 
 use crate::core::accounts;
 use crate::error::{AppError, AppResult};
@@ -8,10 +9,45 @@ fn normalize(host: &str) -> String {
     host.trim().trim_end_matches('/').to_lowercase()
 }
 
-fn url_host_allowed(host: &str, url_host: &str) -> bool {
-    let host = normalize(host);
-    let url_host = normalize(url_host);
-    url_host == host || url_host == format!("api.{host}")
+const NEEDS_HTTPS: &str = "forge requests need an absolute https URL";
+
+fn remote_origin(host: &str) -> Option<(String, u16)> {
+    let parsed = Url::parse(&format!("https://{}", normalize(host))).ok()?;
+    let bare = parsed.username().is_empty()
+        && parsed.password().is_none()
+        && parsed.path() == "/"
+        && parsed.query().is_none()
+        && parsed.fragment().is_none();
+    if !bare {
+        return None;
+    }
+    let name = parsed.host_str()?.to_string();
+    Some((name, parsed.port_or_known_default()?))
+}
+
+fn checked_request_url(host: &str, url: &str) -> AppResult<Url> {
+    let parsed = Url::parse(url).map_err(|_| AppError::other(NEEDS_HTTPS))?;
+    if parsed.scheme() != "https" {
+        return Err(AppError::other(NEEDS_HTTPS));
+    }
+    if !parsed.username().is_empty() || parsed.password().is_some() {
+        return Err(AppError::other(
+            "forge request URLs must not carry userinfo",
+        ));
+    }
+    let Some((remote_host, remote_port)) = remote_origin(host) else {
+        return Err(AppError::other(format!("invalid remote host {host}")));
+    };
+    let url_host = parsed.host_str().unwrap_or_default();
+    let api_host = format!("api.{remote_host}");
+    let host_ok = url_host == remote_host || url_host == api_host;
+    if !host_ok || parsed.port_or_known_default() != Some(remote_port) {
+        let authority = parsed.authority();
+        return Err(AppError::other(format!(
+            "forge request to {authority} does not match the remote host {host}"
+        )));
+    }
+    Ok(parsed)
 }
 
 fn auth_headers(
@@ -28,9 +64,6 @@ fn auth_headers(
                 "application/vnd.github+json".to_string(),
             ));
             headers.push(("x-github-api-version".to_string(), "2022-11-28".to_string()));
-        }
-        "gitlab" | "gitlab-self" => {
-            headers.push(("private-token".to_string(), token.to_string()));
         }
         "bitbucket" => {
             let email = email.ok_or_else(|| {
@@ -74,13 +107,8 @@ pub async fn request(
     host: String,
     mut request: HttpRequest,
 ) -> AppResult<HttpResponse> {
-    let url_host = accounts::host_of_url(&request.url)
-        .ok_or_else(|| AppError::other("forge requests need an absolute http(s) URL"))?;
-    if !url_host_allowed(&host, &url_host) {
-        return Err(AppError::other(format!(
-            "forge request to {url_host} does not match the remote host {host}"
-        )));
-    }
+    let url = checked_request_url(&host, &request.url)?;
+    request.url = url.to_string();
 
     let headers = tauri::async_runtime::spawn_blocking({
         let host = host.clone();
@@ -99,7 +127,7 @@ pub async fn request(
     for (name, value) in headers {
         request.headers.insert(name, value);
     }
-    crate::http::request(request).await
+    crate::http::request_credentialed(request).await
 }
 
 #[cfg(test)]
@@ -108,28 +136,55 @@ mod tests {
 
     #[test]
     fn missing_token_is_reported_differently_from_no_account() {
-        let missing = missing_account_message("gitlab.com", true);
+        let missing = missing_account_message("github.com", true);
         assert!(missing.contains("missing from the system keychain"));
         assert!(missing.contains("reconnect"));
-        let none = missing_account_message("gitlab.com", false);
-        assert!(none.starts_with("no connected gitlab.com account"));
+        let none = missing_account_message("github.com", false);
+        assert!(none.starts_with("no connected github.com account"));
+    }
+
+    fn allowed(host: &str, url: &str) -> bool {
+        checked_request_url(host, url).is_ok()
     }
 
     #[test]
     fn github_com_requests_may_target_the_api_subdomain() {
-        assert!(url_host_allowed("github.com", "api.github.com"));
-        assert!(url_host_allowed("github.com", "github.com"));
-        assert!(!url_host_allowed("github.com", "evilgithub.com"));
-        assert!(!url_host_allowed("github.com", "api.github.com.evil.dev"));
+        assert!(allowed("github.com", "https://api.github.com/user"));
+        assert!(allowed("github.com", "https://github.com/a/b"));
+        assert!(allowed("GitHub.com/", "https://API.github.com/user"));
+        assert!(!allowed("github.com", "https://evilgithub.com/user"));
+        assert!(!allowed(
+            "github.com",
+            "https://api.github.com.evil.dev/user"
+        ));
     }
 
     #[test]
-    fn enterprise_requests_stay_on_the_remote_host() {
-        assert!(url_host_allowed(
-            "github.corp.dev:8443",
-            "github.corp.dev:8443"
+    fn enterprise_requests_stay_on_the_remote_host_and_port() {
+        let port = "https://github.corp.dev:8443/api/v3/user";
+        let default = "https://github.corp.dev/api/v3/user";
+        assert!(allowed("github.corp.dev:8443", port));
+        assert!(allowed("github.corp.dev:443", default));
+        assert!(!allowed("github.corp.dev:8443", default));
+        assert!(!allowed("github.corp.dev", port));
+        assert!(!allowed("github.corp.dev", "https://github.com/user"));
+    }
+
+    #[test]
+    fn credentials_are_never_sent_over_plain_http() {
+        assert!(!allowed("github.com", "http://api.github.com/user"));
+        assert!(!allowed("git.corp.dev", "http://git.corp.dev/api/user"));
+        assert!(!allowed("github.com", "ftp://api.github.com/user"));
+        assert!(!allowed("github.com", "api.github.com/user"));
+    }
+
+    #[test]
+    fn urls_carrying_userinfo_are_refused() {
+        assert!(!allowed("github.com", "https://x:y@api.github.com/user"));
+        assert!(!allowed(
+            "github.com",
+            "https://api.github.com@evil.dev/user"
         ));
-        assert!(!url_host_allowed("github.corp.dev", "github.com"));
     }
 
     #[test]
@@ -143,12 +198,6 @@ mod tests {
     }
 
     #[test]
-    fn gitlab_auth_uses_the_private_token_header() {
-        let headers = auth_headers("gitlab-self", "tok", None).unwrap();
-        assert!(headers.contains(&("private-token".to_string(), "tok".to_string())));
-    }
-
-    #[test]
     fn bitbucket_auth_requires_the_stored_email() {
         assert!(auth_headers("bitbucket", "tok", None).is_err());
         let headers = auth_headers("bitbucket", "tok", Some("dev@example.com")).unwrap();
@@ -159,5 +208,7 @@ mod tests {
     #[test]
     fn unknown_providers_are_rejected() {
         assert!(auth_headers("sourcehut", "tok", None).is_err());
+        assert!(auth_headers("gitlab", "tok", None).is_err());
+        assert!(auth_headers("gitlab-self", "tok", None).is_err());
     }
 }

@@ -65,7 +65,7 @@ export const COMPETITORS: Competitor[] = [
         a: 'No. A repository is a folder with a .git directory. Open it in AngKorGit and it’s all there. Your remotes, branches and stashes are plain git, nothing is stored in a proprietary format.',
       },
       {
-        q: 'Does it work with GitHub, GitLab and Bitbucket?',
+        q: 'Does it work with GitHub and Bitbucket?',
         a: 'Yes. Connect an account with a token and the sidebar lists open pull requests, you can check one out, and you can create one with reviewers without leaving the app. Reviewing itself stays in the browser on purpose, the forge does that better.',
       },
       {
@@ -105,7 +105,7 @@ export const COMPETITORS: Competitor[] = [
       'Worktrees in the sidebar, each opening as its own tab',
       'Interactive rebase with reorder, squash, reword and drop, and undo if you get it wrong',
       'A conflict resolver with both sides aligned, line numbers, and a result pane you can type in',
-      'Pull requests for GitHub, GitLab and Bitbucket in one client, not only Bitbucket',
+      'Pull requests for GitHub and Bitbucket in one client, not only Bitbucket',
     ],
     faq: [
       {
@@ -224,11 +224,11 @@ export const COMPETITORS: Competitor[] = [
     short: 'GitHub Desktop',
     title: 'GitHub Desktop alternative with a commit graph: AngKorGit',
     description:
-      'GitHub Desktop is free and simple but has no commit graph, no interactive rebase and no official Linux build. AngKorGit is a free, open source Git client with all three, and it works with GitHub, GitLab and Bitbucket alike.',
+      'GitHub Desktop is free and simple but has no commit graph, no interactive rebase and no official Linux build. AngKorGit is a free, open source Git client with all three, and it works with GitHub and Bitbucket alike.',
     kicker: 'AngKorGit vs GitHub Desktop',
     heading: 'GitHub Desktop, but with <em>a graph</em>.',
     intro: [
-      'GitHub Desktop is where a lot of people learn Git, and it does the simple flow well. It’s also free and open source, which I respect. The moment you need to see how branches relate, rebase interactively, or work against GitLab, it runs out of road.',
+      'GitHub Desktop is where a lot of people learn Git, and it does the simple flow well. It’s also free and open source, which I respect. The moment you need to see how branches relate, or rebase interactively, it runs out of road.',
       'AngKorGit keeps the friendly parts, the confirmations before anything destructive, undo, plain wording, and adds the graph, the branch operations and the conflict editor that GitHub Desktop leaves out. It’s also the same app on Linux, not a community build.',
     ],
     facts: [
@@ -246,7 +246,7 @@ export const COMPETITORS: Competitor[] = [
     weDo: [
       'A commit graph, virtualized, with drag one branch onto another to merge or rebase',
       'Interactive rebase, cherry-pick, worktrees, stashes with per-file restore',
-      'GitHub, GitLab and Bitbucket pull requests in one client',
+      'GitHub and Bitbucket pull requests in one client',
       'A conflict resolver instead of a hand-off to your editor',
       'An official Linux build, with AppImage, .deb and .rpm',
     ],

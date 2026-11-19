@@ -16,21 +16,21 @@ direction.
 - [x] Stash: create (whole tree or chosen files), apply, pop (one click from the toolbar), drop; stashes as rows in the graph with their own node and menu; apply single files from a stash · Tags: create (annotated/lightweight), delete, checkout · Submodules: list & update
 - [x] Built-in PTY terminal at repo root; built-in file editor
 - [x] Diff: inline & side-by-side, syntax highlight, word diff, image diff, find in diff (⌘F), minimap, previous/next change and file navigation (N/P, [/]), opens directly at the first change (no scroll animation), reloads live as the file changes on disk, file history one click from the header; → / ↑ ↓ / ← walk from the graph into a commit's files and back
-- [x] Settings: sixteen themes (Angkor Dusk default) with accents & zoom, identity profiles (repo-local) with linked accounts, SSH key management & generation, hosting accounts with verified tokens (Secret Service on Linux, missing tokens flagged), AI providers & commit style, keyboard reference
+- [x] Settings: fourteen themes (Sorted default) with accents & zoom, identity profiles (repo-local) with linked accounts, SSH key management & generation, hosting accounts with verified tokens (Secret Service on Linux, missing tokens flagged), AI providers & commit style, keyboard reference
 - [x] Sidebar: accordion sections with pinned headers and collapse-all, row menus on hover and right-click everywhere, empty-state cards; graph display options and column headers; welcome page with keyboard navigation and missing-folder detection
 - [x] AI: provider-agnostic (OpenAI, Anthropic, Gemini, Ollama, LM Studio) plus installed AI CLIs (Claude Code, GitHub Copilot CLI, Codex, Gemini CLI, OpenCode, Antigravity, Cursor CLI) — commit messages, diff/conflict explanations, PR descriptions, review of the staged changes, of one file from its diff, or of a whole commit, with team conventions (global + per-repo `.angkorgit/review.md`), structured answers (findings by severity, verdict, quoted lines that jump to the code), background execution with stop, full-size reading views
 - [x] Undo/redo for recent operations; drag-and-drop merge/rebase
 - [x] Auto-update: pull-based from GitHub releases, signature-verified
 - [x] Commit signing: SSH and GPG, driven by existing git config (commit.gpgSign, gpg.format, user.signingKey) — covers commit, amend, merge
-- [x] Pull requests: sidebar list, checkout and in-app create with reviewer selection for GitHub, GitLab (incl. self-hosted) and Bitbucket Cloud, through the connected account; browser fallback without one
+- [x] Pull requests: sidebar list, checkout and in-app create with reviewer selection for GitHub and Bitbucket Cloud, through the connected account; browser fallback without one
 - [x] Graph search: message text, a hash or prefix, and author all find matches in the full graph, centered and highlighted, with an n of m control; ⌘F focuses the search
 - [x] Command line: `angkorgit` / `akg` installed from Settings — open the current folder, a path, or clone by URL or owner/repo into the app
 - [x] Blame: a pane of file history with a Working copy row, per-hunk authors, jump to the commit, blame at or before any commit
 - [x] External editor: detected editors (VS Code, Cursor, Zed, Sublime, JetBrains, Xcode, GNOME Builder…) from the toolbar, palette and file menus
 - [x] Pull with rebase following `pull.rebase`, a merge/rebase choice per pull, and a status bar note of the last fetch
 - [x] Fork workflow: "Fast-forward current to this" in the branch menus (enabled only when the branch is strictly behind), every remote fetched on each tab switch, "Open in browser" on a remote and from the palette
-- [x] Provider avatars from the connected account when Gravatar has none; the AI provider and its last connection test in the status bar
-- [x] Upstream workflow: add a remote from the sidebar, pull requests from a fork into its upstream (GitHub, GitLab, Bitbucket Cloud), a remembered clone folder, a right-click menu in the terminal
+- [x] Provider avatars from the connected account (the only avatar source); the AI provider and its last connection test in the status bar
+- [x] Upstream workflow: add a remote from the sidebar, pull requests from a fork into its upstream (GitHub, Bitbucket Cloud), a remembered clone folder, a right-click menu in the terminal
 - [x] Windows: SSH remotes with ed25519 and ECDSA host keys (libssh2 built on OpenSSL)
 - [x] Fonts: interface, code and terminal fonts picked from what is installed, each shown in its own face, terminal size, one-click reset
 - [x] Edit a commit message in place from the inspector or the graph menu (HEAD amended message-only, older commits rewritten in memory), undoable; a pushed commit asks first because the next push must be forced
@@ -59,7 +59,7 @@ direction.
 
 ## Later — Connected (architecture in place, see Architecture.md)
 
-- [ ] Azure DevOps and Bitbucket Server adapters (GitHub, GitLab and Bitbucket Cloud are in)
+- [ ] Azure DevOps and Bitbucket Server adapters (GitHub and Bitbucket Cloud are in; GitLab was removed for security)
 - [ ] Read-only pull request detail view (commits, CI status, review state)
 - [ ] Issue viewer
 

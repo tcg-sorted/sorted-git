@@ -1626,9 +1626,9 @@ mod tests {
 
     #[test]
     fn parses_account_bindings_from_repo_config() {
-        let map = parse_account_bindings("github.com=dara-work, gitlab.com=dara");
+        let map = parse_account_bindings("github.com=dara-work, bitbucket.org=dara");
         assert_eq!(map.get("github.com"), Some(&"dara-work".to_string()));
-        assert_eq!(map.get("gitlab.com"), Some(&"dara".to_string()));
+        assert_eq!(map.get("bitbucket.org"), Some(&"dara".to_string()));
     }
 
     #[test]
@@ -1715,7 +1715,7 @@ mod tests {
     fn other_keys_in_dot_ssh_are_tried_after_the_defaults() {
         let discovered = vec![
             PathBuf::from("/Users/tester/.ssh/id_ed25519"),
-            PathBuf::from("/Users/tester/.ssh/work_gitlab"),
+            PathBuf::from("/Users/tester/.ssh/work_bitbucket"),
         ];
         let candidates = ssh_key_candidates(None, Some(&home()), &discovered);
         assert_eq!(
@@ -1723,7 +1723,7 @@ mod tests {
             vec![
                 PathBuf::from("/Users/tester/.ssh/id_ed25519"),
                 PathBuf::from("/Users/tester/.ssh/id_rsa"),
-                PathBuf::from("/Users/tester/.ssh/work_gitlab"),
+                PathBuf::from("/Users/tester/.ssh/work_bitbucket"),
             ]
         );
     }
