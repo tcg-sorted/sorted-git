@@ -134,7 +134,7 @@ export function StatusBar() {
       </span>
       {!prUrl && unknownForgeHost && (
         <Hint
-          label={`AngKorGit does not know which forge runs ${unknownForgeHost}. Connect an account for it in Settings and pull requests light up here.`}
+          label={`Sorted Git does not know which forge runs ${unknownForgeHost}. Connect an account for it in Settings and pull requests light up here.`}
         >
           <button
             type="button"
@@ -151,7 +151,7 @@ export function StatusBar() {
         <Hint
           label={
             createInApp
-              ? `Create a pull request for ${repo?.headBranch} without leaving AngKorGit`
+              ? `Create a pull request for ${repo?.headBranch} without leaving Sorted Git`
               : `Open a pre-filled pull request page for ${repo?.headBranch}`
           }
         >
@@ -236,7 +236,7 @@ export function StatusBar() {
               .finally(() => toast.dismiss('updater'));
           }}
         >
-          {version ? `v${version}` : 'AngKorGit'}
+          {version ? `v${version}` : 'Sorted Git'}
         </button>
       </Hint>
     </footer>

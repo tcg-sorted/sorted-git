@@ -1214,17 +1214,17 @@ test('an unconfirmed post-hook timeout exposes details without hook output', asy
       hook: 'post-checkout',
       status: null,
       timedOut: true,
-      message: 'The post-checkout hook did not finish within 600 seconds. AngKorGit could not confirm that all hook processes exited.',
+      message: 'The post-checkout hook did not finish within 600 seconds. Sorted Git could not confirm that all hook processes exited.',
       output: '',
     });
   });
 
   const warning = page.locator('[data-sonner-toast]', { hasText: 'The post-checkout hook timed out' });
-  await expect(warning).toContainText('AngKorGit could not confirm that all hook processes exited.');
+  await expect(warning).toContainText('Sorted Git could not confirm that all hook processes exited.');
   await expect(warning).not.toContainText('It was stopped.');
   await warning.getByRole('button', { name: 'Show details' }).click();
   const dialog = page.locator('[data-hook-warning="post-checkout"]');
-  await expect(dialog).toContainText('AngKorGit could not confirm that all hook processes exited.');
+  await expect(dialog).toContainText('Sorted Git could not confirm that all hook processes exited.');
   await expect(dialog.getByText('The hook printed nothing.')).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Copy output' })).toBeDisabled();
 });

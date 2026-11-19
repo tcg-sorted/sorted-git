@@ -1146,7 +1146,7 @@ mod tests {
         assert_eq!(warning.output, "installing");
         assert_eq!(
             warning.message,
-            "The post-merge hook did not finish within 3 seconds. AngKorGit could not confirm that all hook processes exited."
+            "The post-merge hook did not finish within 3 seconds. Sorted Git could not confirm that all hook processes exited."
         );
     }
 

@@ -53,7 +53,7 @@ const PROVIDERS: Record<ProviderKind, ProviderPreset> = {
     label: 'GitHub',
     defaultHost: 'github.com',
     hostEditable: false,
-    tokenPage: () => 'https://github.com/settings/tokens/new?scopes=repo&description=AngKorGit',
+    tokenPage: () => 'https://github.com/settings/tokens/new?scopes=repo&description=Sorted%20Git',
     tokenHint: (
       <>
         Classic token with the repo scope, or a{' '}

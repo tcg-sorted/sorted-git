@@ -410,7 +410,7 @@ function CliAgentPicker() {
         />
       )}
       <p className="mt-1 text-[11px] leading-relaxed text-faint">
-        Requests run through the CLI on this machine with its own login and quota. AngKorGit stores no key and
+        Requests run through the CLI on this machine with its own login and quota. Sorted Git stores no key and
         sends nothing anywhere itself.
       </p>
     </div>
@@ -472,7 +472,7 @@ function CommitStyleCard() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted">
-              Branch prefix rules <span className="font-normal text-faint">· first match wins, applied by AngKorGit itself</span>
+              Branch prefix rules <span className="font-normal text-faint">· first match wins, applied by Sorted Git itself</span>
             </span>
             <Button
               variant="ghost"
@@ -1106,7 +1106,7 @@ export function SettingsDialog() {
             <div className="border-t border-border-subtle px-4 py-3">
               <div className="flex items-center gap-2">
                 <Logo size={18} className="text-foreground" />
-                <span className="text-xs text-faint">AngKorGit</span>
+                <span className="text-xs text-faint">Sorted Git</span>
               </div>
             </div>
           </nav>
