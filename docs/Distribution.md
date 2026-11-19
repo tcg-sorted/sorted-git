@@ -72,7 +72,8 @@ Issue #49: Defender's `Wacatac.C!ml` heuristic flagged the unsigned 0.20.0
 removed the app. The fix is a real Authenticode signature. SignPath Foundation
 signs open source projects for free on their HSM (publisher reads "SignPath
 Foundation"); the application was approved on 2026-10-08 and the public policy
-it required lives at https://angkorgit.app/code-signing/.
+it required was published on the upstream AngKorGit website, which this fork
+does not ship.
 
 **What `release.yml` does now.** The Windows build job copies the NSIS
 `setup.exe` and the `.msi` into a flat `windows-unsigned` workflow artifact. A
@@ -192,17 +193,3 @@ in-app; the bump matters for fresh installs. Add this to the release checklist.
 Once the project has traction (75+ stars, 30+ forks) AND the app is
 signed/notarized, submit to homebrew-cask proper for
 `brew install --cask angkorgit`.
-
-## 5. Website (live)
-
-- Live at `https://angkorgit.app/` (Astro, static, GitHub Pages via
-  `.github/workflows/website.yml`; custom domain + HTTPS enforced).
-- Sections: hero with graph screenshot, features, gallery, performance, AI,
-  install (per-OS download cards + terminal one-liners with copy buttons),
-  open-source, final CTA.
-- Docs are rendered on-site at `/docs/` directly from `docs/*.md` (see
-  `apps/website/src/content.config.ts`) — edit a doc and the site updates on
-  the next deploy; no duplication.
-- SEO: meta/OG/JSON-LD, sitemap, Google Search Console verified
-  (URL-prefix property), `robots.txt` → `sitemap-index.xml`.
-- Launch/verification runbook: `docs/Launch-Checklist.md`.

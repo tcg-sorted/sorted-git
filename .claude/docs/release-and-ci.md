@@ -7,23 +7,6 @@
   dmg recipients need right-click → Open (unsigned).
 - **CI** (`.github/workflows/ci.yml`): frontend typecheck+unit+build · Playwright ·
   Rust fmt/clippy/test on ubuntu+macos+windows.
-- **Website** (`.github/workflows/website.yml`): builds the Astro site (re-runs
-  `website:images`) and deploys to **GitHub Pages** via `actions/deploy-pages`.
-  The install-section version is fetched from the latest GitHub release at build
-  time (`site.ts`, hardcoded fallback). Triggers: push to main (website paths),
-  release published, nightly cron, manual dispatch. **Gotcha**: release-published
-  runs execute on the tag ref — even with a `v*` tag policy on the github-pages
-  environment (added 2026-08-09), Pages was observed to keep serving the older
-  main-ref deployment despite the tag deployment reporting success. The nightly
-  cron (runs on main) self-heals this; for an instant flip after publishing a
-  release, manually dispatch the Website workflow. Pages CDN caches HTML for
-  10 min (`max-age=600`) with no owner-facing purge.
-  Served at `https://angkorgit.app/` (custom domain; `public/CNAME` holds it and the
-  workflow pins `SITE_URL=https://angkorgit.app`, `SITE_BASE=/`). Repo must have Pages
-  source set to "GitHub Actions", and the DNS for `angkorgit.app` must point at GitHub
-  Pages (A records `185.199.108.153`/`.109`/`.110`/`.111`). The retired temporary
-  URL `https://cheat2001.github.io/angkorgit/` (base `/angkorgit/`, env `SITE_BASE`)
-  is no longer used — the GitHub Pages site is built at root base for the custom domain.
 - **Release** (`release.yml`): push tag `v*` → tauri-action builds macOS (universal),
   Windows, Linux; attaches to draft GitHub release. WINDOWS CODE SIGNING
   (issue #49, SignPath Foundation approved 2026-10-08, wired 2026-10-09): the
@@ -59,21 +42,19 @@
      been forgotten before — 0.5.0/0.6.0 were missing until 0.6.1)
   5. `README.md` — the three pinned install commands (macOS dmg, Windows exe,
      Linux AppImage)
-  6. `apps/website/src/lib/site.ts` — `FALLBACK_VERSION`
-  7. `docs/Distribution.md` — Homebrew cask example
-  8. `docs/Roadmap.md` — "Updated for vX" header + "Shipped" range, and move
+  6. `docs/Distribution.md` — Homebrew cask example
+  7. `docs/Roadmap.md` — "Updated for vX" header + "Shipped" range, and move
      newly shipped items out of "Next"
-  9. The AI docs — test counts in `.claude/docs/testing.md` and the `.claude/docs/engine/`
+  8. The AI docs — test counts in `.claude/docs/testing.md` and the `.claude/docs/engine/`
      and `.claude/docs/frontend/` files for any feature that shipped
-  10. `cheat2001/homebrew-tap` repo — `Casks/angkorgit.rb` `version` + `sha256`
+  9. `cheat2001/homebrew-tap` repo — `Casks/angkorgit.rb` `version` + `sha256`
      (`shasum -a 256` of the new universal dmg, AFTER the release artifacts are
      published; see docs/Distribution.md §4)
   Before publishing: approve the SignPath signing request and wait for the
   `sign-windows` job to go green (the draft's Windows assets are unsigned until
   then).
   After publishing: confirm the updater offered the release (installed app
-  version flips), and that angkorgit.app shows the new version (manually
-  dispatch the Website workflow if the release-triggered deploy served stale).
+  version flips).
 - **Release notes follow a fixed house template** (see any published release, e.g.
   v0.3.0 — the owner rejects ad-hoc formats): (1) themed opening line ("The X
   release. …") + the standing updater sentence "Already on AngKorGit? **Your app

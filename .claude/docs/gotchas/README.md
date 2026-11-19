@@ -82,7 +82,7 @@ A new gotcha takes the next free number, gets its own file and a row below.
 - [G22](g22-ai-settings-are-per-provider.md) — AI settings are per provider
 - [G57](g57-openai-compatible-request-parameters-differ-per-host.md) — OpenAI-compatible request parameters differ per host and model
 
-## Website (Astro)
+## Retired
 
-- [G14](g14-website-astro-svg-script-gotchas.md) — website (Astro) SVG/script gotchas
-- [G15](g15-website-astro-shiki-dual-themes.md) — website (Astro) Shiki dual themes
+- G14 and G15 described the Astro marketing website, removed from this fork on
+  2026-11-19 along with the website. Their numbers stay unused.
