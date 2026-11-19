@@ -56,7 +56,7 @@ jobs:
         with:
           projectPath: apps/desktop
           tagName: ${{ github.ref_name }}
-          releaseName: 'AngKorGit ${{ github.ref_name }}'
+          releaseName: 'Sorted Git ${{ github.ref_name }}'
           releaseDraft: true
           args: ${{ matrix.args }}
       - name: Collect the unsigned Windows installers
@@ -65,8 +65,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir windows-unsigned
-          cp apps/desktop/src-tauri/target/release/bundle/nsis/AngKorGit_*_x64-setup.exe windows-unsigned/
-          cp apps/desktop/src-tauri/target/release/bundle/msi/AngKorGit_*_x64_en-US.msi windows-unsigned/
+          cp apps/desktop/src-tauri/target/release/bundle/nsis/'Sorted Git'_*_x64-setup.exe windows-unsigned/
+          cp apps/desktop/src-tauri/target/release/bundle/msi/'Sorted Git'_*_x64_en-US.msi windows-unsigned/
           ls -l windows-unsigned
       - name: Upload the unsigned Windows installers for SignPath
         if: runner.os == 'Windows'

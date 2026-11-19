@@ -497,9 +497,9 @@ mod tests {
 
     #[test]
     fn unix_shim_lists_the_github_desktop_commands() {
-        let body = unix_shim(Path::new("/Applications/AngKorGit.app"), "app");
+        let body = unix_shim(Path::new("/Applications/Sorted Git.app"), "app");
         assert!(body.contains(SHIM_MARK));
-        assert!(body.contains("APP='/Applications/AngKorGit.app'"));
+        assert!(body.contains("APP='/Applications/Sorted Git.app'"));
         assert!(body.contains("open -a \"$APP\""));
         assert!(body.contains("angkorgit open [path]"));
         assert!(body.contains("angkorgit clone [-b branch] <url>"));
@@ -515,7 +515,7 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("angkorgit-cli-alias-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let shim = dir.join(shim_name());
-        let body = unix_shim(Path::new("/Applications/AngKorGit.app"), "app");
+        let body = unix_shim(Path::new("/Applications/Sorted Git.app"), "app");
         write_shim(&shim, &body).unwrap();
         assert_eq!(status_of(&shim).alias_path, None);
         write_alias(&shim, &body).unwrap();
