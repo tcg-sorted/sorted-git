@@ -51,21 +51,24 @@
   The workflow also has `workflow_dispatch` (re-run on the `release` branch
   only; any other ref fails in `prepare`). Runs share a `release` concurrency
   group and queue instead of cancelling.
-- **Release asset names.** Tauri names bundles after `productName` ("Sorted Git",
-  with a space). GitHub rewrites unsupported characters in uploaded asset names
-  (a space becomes `.`), and tauri-action relies on that rewrite, so the workflow
-  renames every file before upload instead. The names are fixed by the workflow,
-  not by Tauri, and `latest.json` URLs are built from the same names:
+- **Release asset names.** Tauri names bundles after `productName`, which may
+  contain spaces ("Sorted Git"). GitHub rewrites unsupported characters in
+  uploaded asset names (a space becomes `.`), so the workflow renames every file
+  itself before upload. `prepare` derives `<P>` from `productName` by replacing
+  every character outside `[A-Za-z0-9_-]` with `.` (the same rule GitHub uses):
+  `AngKorGit` today on main, `Sorted.Git` once the product is renamed. The
+  release title is `<productName> v<version>`. `latest.json` URLs are built from
+  the same names:
 
-  | Platform | Asset (`X.Y.Z` = version) |
+  | Platform | Asset (`X.Y.Z` = version, `<P>` = prefix above) |
   | --- | --- |
-  | macOS universal installer | `Sorted.Git_X.Y.Z_universal.dmg` |
-  | macOS updater bundle (updater on only) | `Sorted.Git_X.Y.Z_universal.app.tar.gz` (+ `.sig`) |
-  | Windows installer (NSIS) | `Sorted.Git_X.Y.Z_x64-setup.exe` (+ `.sig`) |
-  | Windows installer (MSI) | `Sorted.Git_X.Y.Z_x64_en-US.msi` (+ `.sig`) |
-  | Linux AppImage | `Sorted.Git_X.Y.Z_amd64.AppImage` (+ `.sig`) |
-  | Linux deb | `Sorted.Git_X.Y.Z_amd64.deb` (+ `.sig`) |
-  | Linux rpm | `Sorted.Git-X.Y.Z-1.x86_64.rpm` (+ `.sig`) |
+  | macOS universal installer | `<P>_X.Y.Z_universal.dmg` |
+  | macOS updater bundle (updater on only) | `<P>_X.Y.Z_universal.app.tar.gz` (+ `.sig`) |
+  | Windows installer (NSIS) | `<P>_X.Y.Z_x64-setup.exe` (+ `.sig`) |
+  | Windows installer (MSI) | `<P>_X.Y.Z_x64_en-US.msi` (+ `.sig`) |
+  | Linux AppImage | `<P>_X.Y.Z_amd64.AppImage` (+ `.sig`) |
+  | Linux deb | `<P>_X.Y.Z_amd64.deb` (+ `.sig`) |
+  | Linux rpm | `<P>-X.Y.Z-1.x86_64.rpm` (+ `.sig`) |
   | Updater manifest (updater on only) | `latest.json` |
 
   The `.sig` files exist only while the updater is on.
@@ -98,7 +101,7 @@
      to the single-line contents of `~/.tauri/sorted-git.key.pub`, and commit
      that before the first release that ships the updater.
   Installs of upstream AngKorGit builds (upstream identifier and pubkey) will not
-  update to Sorted Git releases; that is expected.
+  update to this fork's releases; that is expected.
 - **Release branch (one-time).** Create `release` once from `main`
   (`git push origin origin/main:refs/heads/release`) and protect it so it only
   changes through PRs.
@@ -138,7 +141,7 @@
      newly shipped items out of "Next"
   9. The AI docs — test counts in `.claude/docs/testing.md` and the `.claude/docs/engine/`
      and `.claude/docs/frontend/` files for any feature that shipped
-  10. (upstream only, not done for Sorted Git) `cheat2001/homebrew-tap` repo — `Casks/angkorgit.rb` `version` + `sha256`
+  10. (upstream only, not done in this fork) `cheat2001/homebrew-tap` repo — `Casks/angkorgit.rb` `version` + `sha256`
      (`shasum -a 256` of the new universal dmg, AFTER the release artifacts are
      published; see docs/Distribution.md §4)
   After the release workflow publishes: check the release assets, and (while

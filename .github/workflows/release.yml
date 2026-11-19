@@ -21,6 +21,8 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
       updater: ${{ steps.version.outputs.updater }}
+      product: ${{ steps.version.outputs.product }}
+      asset_prefix: ${{ steps.version.outputs.asset_prefix }}
     steps:
       - uses: actions/checkout@v4
       - name: Read and check the version
@@ -63,6 +65,10 @@ jobs:
             exit 1
           fi
           echo "updater=$updater" >> "$GITHUB_OUTPUT"
+          product=$(jq -r .productName apps/desktop/src-tauri/tauri.conf.json)
+          asset_prefix=$(printf '%s' "$product" | sed 's/[^A-Za-z0-9_-]/./g')
+          echo "product=$product" >> "$GITHUB_OUTPUT"
+          echo "asset_prefix=$asset_prefix" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "Releasing $tag (updater artifacts: $updater)"
@@ -84,6 +90,7 @@ jobs:
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
       UPDATER: ${{ needs.prepare.outputs.updater }}
+      ASSET_PREFIX: ${{ needs.prepare.outputs.asset_prefix }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -142,7 +149,7 @@ jobs:
               pick "$1" "$2"
             fi
           }
-          name=Sorted.Git
+          name=$ASSET_PREFIX
           case "$RUNNER_OS" in
             macOS)
               pick '*.dmg' "${name}_${VERSION}_universal.dmg"
@@ -182,7 +189,9 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       VERSION: ${{ needs.prepare.outputs.version }}
       TAG: ${{ needs.prepare.outputs.tag }}
+      PRODUCT: ${{ needs.prepare.outputs.product }}
       UPDATER: ${{ needs.prepare.outputs.updater }}
+      ASSET_PREFIX: ${{ needs.prepare.outputs.asset_prefix }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -199,12 +208,12 @@ jobs:
             test -s "$1.sig"
             jq -n --arg url "$base/$1" --rawfile sig "$1.sig" '{signature: ($sig | rtrimstr("\n")), url: $url}'
           }
-          app=$(entry "Sorted.Git_${VERSION}_universal.app.tar.gz")
-          nsis=$(entry "Sorted.Git_${VERSION}_x64-setup.exe")
-          msi=$(entry "Sorted.Git_${VERSION}_x64_en-US.msi")
-          appimage=$(entry "Sorted.Git_${VERSION}_amd64.AppImage")
-          deb=$(entry "Sorted.Git_${VERSION}_amd64.deb")
-          rpm=$(entry "Sorted.Git-${VERSION}-1.x86_64.rpm")
+          app=$(entry "${ASSET_PREFIX}_${VERSION}_universal.app.tar.gz")
+          nsis=$(entry "${ASSET_PREFIX}_${VERSION}_x64-setup.exe")
+          msi=$(entry "${ASSET_PREFIX}_${VERSION}_x64_en-US.msi")
+          appimage=$(entry "${ASSET_PREFIX}_${VERSION}_amd64.AppImage")
+          deb=$(entry "${ASSET_PREFIX}_${VERSION}_amd64.deb")
+          rpm=$(entry "${ASSET_PREFIX}-${VERSION}-1.x86_64.rpm")
           jq -n \
             --arg version "$VERSION" \
             --arg notes "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" \
@@ -234,7 +243,7 @@ jobs:
           gh release create "$TAG" release-assets/* \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
-            --title "Sorted Git $TAG" \
+            --title "$PRODUCT $TAG" \
             --generate-notes \
             --latest
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[].name)'

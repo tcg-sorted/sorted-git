@@ -70,7 +70,7 @@ history — purely to remove the first-launch step.
 
 ## 2b. Windows code signing — SignPath Foundation (upstream only, not wired in sorted-git)
 
-The Sorted Git release workflow does not run this: the SignPath project below
+The sorted-git release workflow does not run this: the SignPath project below
 belongs to upstream AngKorGit, so sorted-git ships unsigned Windows installers
 until it has its own signing setup. The rest of this section describes upstream.
 
