@@ -616,7 +616,7 @@ function CliToolCard() {
     <SettingCard
       settingId="cli"
       title="Command line tool"
-      description="Open or clone a repository from the terminal as angkorgit or the short akg. Run akg --help for the full usage."
+      description="Open or clone a repository from the terminal as sorted-git or the short sgit. Run sgit --help for the full usage."
       action={
         status ? (
           <Button variant="secondary" size="sm" disabled={busy} onClick={() => void uninstall()}>
@@ -630,19 +630,19 @@ function CliToolCard() {
       }
     >
       <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-muted">
-        {`angkorgit
-angkorgit open [path]
-angkorgit clone [-b branch] <url>`}
+        {`sorted-git
+sorted-git open [path]
+sorted-git clone [-b branch] <url>`}
       </pre>
       {status && (
         <p className="mt-1 text-[11px] leading-relaxed text-faint">
           {status.path}
-          {status.aliasPath && ' · also akg'}
+          {status.aliasPath && ' · also sgit'}
         </p>
       )}
       {status && status.path.includes('/.local/bin/') && (
         <p className="mt-1 text-[11px] leading-relaxed text-muted">
-          ~/.local/bin is not on PATH in every shell. If akg is not found, add this line to your shell profile:{' '}
+          ~/.local/bin is not on PATH in every shell. If sgit is not found, add this line to your shell profile:{' '}
           <code className="rounded bg-surface-raised px-1 font-mono">export PATH="$HOME/.local/bin:$PATH"</code>
         </p>
       )}

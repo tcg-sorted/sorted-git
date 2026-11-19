@@ -1147,7 +1147,7 @@ export const ipc = {
   },
   async cliInstall(): Promise<CliToolStatus> {
     if (!isTauri()) {
-      demoCli = { path: '/usr/local/bin/angkorgit', aliasPath: '/usr/local/bin/akg' };
+      demoCli = { path: '/usr/local/bin/sorted-git', aliasPath: '/usr/local/bin/sgit' };
       return demoCli;
     }
     return invoke('cli_install');
