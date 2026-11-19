@@ -11,8 +11,8 @@ cannot be automated by contributors.
 2. Move `[Unreleased]` items in `CHANGELOG.md` under the new version heading.
 3. Open a PR from the bumped branch into `release` and merge it →
    `.github/workflows/release.yml` builds macOS (universal), Windows, and Linux
-   bundles and **publishes** the `vX.Y.Z` release in `tcg-sorted/sorted-git` with
-   `latest.json`. It refuses a version whose tag or release already exists. Edit
+   bundles and **publishes** the `vX.Y.Z` release in `tcg-sorted/sorted-git`
+   (plus `latest.json` only if the updater is re-enabled). It refuses a version whose tag or release already exists. Edit
    the generated notes into the house template afterwards. Full flow and the
    one-time key setup: `.claude/docs/release-and-ci.md`.
 

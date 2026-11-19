@@ -54,4 +54,4 @@ in `packages/core/src/ai/cliAgents.ts` and its binary to the allowlist in
 
 ## Release
 
-Bump the version, then merge a PR into the `release` branch: `.github/workflows/release.yml` builds macOS (universal), Windows and Linux bundles and publishes the `v<version>` GitHub release with the updater's `latest.json`. Details in `.claude/docs/release-and-ci.md`.
+Bump the version, then merge a PR into the `release` branch: `.github/workflows/release.yml` builds macOS (universal), Windows and Linux bundles and publishes the `v<version>` GitHub release (plus `latest.json` if the updater is re-enabled). Details in `.claude/docs/release-and-ci.md`.

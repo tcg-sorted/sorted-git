@@ -2,7 +2,7 @@
 
 [Back to the index](../../CLAUDE.md)
 
-- **Local**: `pnpm tauri:build` → `Sorted Git.app` + `Sorted Git_x.y.z_aarch64.dmg`;
+- **Local**: `pnpm tauri:build` → `AngKorGit.app` + `AngKorGit_x.y.z_aarch64.dmg`;
   `pnpm install:mac` installs. Locally-built apps aren't Gatekeeper-quarantined; shared
   dmg recipients need right-click → Open (unsigned).
 - **CI** (`.github/workflows/ci.yml`): frontend typecheck+unit+build · Playwright ·
@@ -30,15 +30,20 @@
   1. `prepare` reads `version` from `apps/desktop/src-tauri/tauri.conf.json`,
      fails unless root `package.json`, `apps/desktop/package.json` and `Cargo.toml`
      say the same, fails if tag `v<version>` or its release already exists (a
-     forgotten bump never overwrites a release), and fails if the
-     `TAURI_SIGNING_PRIVATE_KEY` secret is missing.
+     forgotten bump never overwrites a release). It also reads
+     `bundle.createUpdaterArtifacts`: when true it requires the
+     `TAURI_SIGNING_PRIVATE_KEY` secret and turns on the updater outputs below.
+     The auto-updater is currently disabled in this fork (see CLAUDE.md), so
+     today the flag is false and releases carry only the installers: no `.sig`
+     files, no `.app.tar.gz`, no `latest.json`.
   2. `build` (macos-latest `--target universal-apple-darwin`, ubuntu-22.04,
      windows-latest; fail-fast) wipes old `release/bundle` dirs restored by the
      rust cache, runs `pnpm tauri:build`, then copies each bundle to a fixed,
      space-free name (below) and uploads them as a workflow artifact. A step
      fails if a pattern matches zero or several bundles.
-  3. `publish` merges the artifacts, writes `latest.json` itself with jq (no
-     tauri-action, so no race between matrix jobs over the manifest), and runs
+  3. `publish` merges the artifacts, writes `latest.json` itself with jq (only
+     when the updater flag is on (no
+     tauri-action, so no race between matrix jobs over the manifest)), and runs
      `gh release create v<version> --target <merged sha> --generate-notes --latest`,
      which creates the tag. The release is published, not a draft, because the
      updater endpoint `releases/latest/download/latest.json` only resolves to the
@@ -55,23 +60,28 @@
   | Platform | Asset (`X.Y.Z` = version) |
   | --- | --- |
   | macOS universal installer | `Sorted.Git_X.Y.Z_universal.dmg` |
-  | macOS updater bundle | `Sorted.Git_X.Y.Z_universal.app.tar.gz` (+ `.sig`) |
+  | macOS updater bundle (updater on only) | `Sorted.Git_X.Y.Z_universal.app.tar.gz` (+ `.sig`) |
   | Windows installer (NSIS) | `Sorted.Git_X.Y.Z_x64-setup.exe` (+ `.sig`) |
   | Windows installer (MSI) | `Sorted.Git_X.Y.Z_x64_en-US.msi` (+ `.sig`) |
   | Linux AppImage | `Sorted.Git_X.Y.Z_amd64.AppImage` (+ `.sig`) |
   | Linux deb | `Sorted.Git_X.Y.Z_amd64.deb` (+ `.sig`) |
   | Linux rpm | `Sorted.Git-X.Y.Z-1.x86_64.rpm` (+ `.sig`) |
-  | Updater manifest | `latest.json` |
+  | Updater manifest (updater on only) | `latest.json` |
+
+  The `.sig` files exist only while the updater is on.
 
   Download URLs: `https://github.com/tcg-sorted/sorted-git/releases/download/vX.Y.Z/<asset>`,
   or `.../releases/latest/download/<asset>` for the newest release. `latest.json`
   maps `darwin-aarch64`/`darwin-x86_64` (+ `-app`) to the universal `.app.tar.gz`,
   `windows-x86_64` and `-nsis` to the setup.exe, `-msi` to the msi,
   `linux-x86_64` and `-appimage` to the AppImage, plus `-deb` and `-rpm`.
-- **Updater signing key (one-time owner setup, never done by an assistant).** The
-  bundles are signed for the updater with a minisign key held in two repo secrets.
-  The pubkey in `tauri.conf.json` still belongs to upstream AngKorGit and must be
-  replaced, or no Sorted Git install will accept an update. On the owner's machine:
+- **Re-enabling the updater (one-time owner setup, never done by an assistant).**
+  Only needed if the fork turns the auto-updater back on: restore the updater
+  plugin, its capability and startup check, set `bundle.createUpdaterArtifacts`
+  to true, add `plugins.updater` with the endpoint
+  `https://github.com/tcg-sorted/sorted-git/releases/latest/download/latest.json`
+  and a pubkey from a key the company owns (never upstream's). The bundles are
+  then signed with a minisign key held in two repo secrets. On the owner's machine:
   1. Generate the key pair (choose a password when prompted):
      `pnpm tauri signer generate -w ~/.tauri/sorted-git.key`
      This writes `~/.tauri/sorted-git.key` (private) and
@@ -84,15 +94,14 @@
      `gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo tcg-sorted/sorted-git`
      (prompts for the password; GitHub rejects empty secrets, so with an empty
      password just skip this one and the build sees an empty value).
-  3. Replace `plugins.updater.pubkey` in `apps/desktop/src-tauri/tauri.conf.json`
-     with the single-line contents of `~/.tauri/sorted-git.key.pub`, and commit
-     that before the first release. Leave `endpoints` pointing at
-     `https://github.com/tcg-sorted/sorted-git/releases/latest/download/latest.json`.
-  4. Create the `release` branch once from `main`
-     (`git push origin origin/main:refs/heads/release`) and protect it so it only
-     changes through PRs.
+  3. Set `plugins.updater.pubkey` in `apps/desktop/src-tauri/tauri.conf.json`
+     to the single-line contents of `~/.tauri/sorted-git.key.pub`, and commit
+     that before the first release that ships the updater.
   Installs of upstream AngKorGit builds (upstream identifier and pubkey) will not
   update to Sorted Git releases; that is expected.
+- **Release branch (one-time).** Create `release` once from `main`
+  (`git push origin origin/main:refs/heads/release`) and protect it so it only
+  changes through PRs.
 - **Cutting a release.** On a work branch off `main`: bump the version through the
   checklist below, open the PR into `main`, merge it, then open a PR from `main`
   into `release` and merge that. The merge triggers the workflow; when it is
@@ -132,13 +141,13 @@
   10. (upstream only, not done for Sorted Git) `cheat2001/homebrew-tap` repo — `Casks/angkorgit.rb` `version` + `sha256`
      (`shasum -a 256` of the new universal dmg, AFTER the release artifacts are
      published; see docs/Distribution.md §4)
-  After the release workflow publishes: confirm the updater offered the release (installed app
-  version flips), and that angkorgit.app shows the new version (manually
+  After the release workflow publishes: check the release assets, and (while
+  upstream's site still applies) that angkorgit.app shows the new version (manually
   dispatch the Website workflow if the release-triggered deploy served stale).
 - **Release notes follow a fixed house template** (see any published release, e.g.
   v0.3.0 — the owner rejects ad-hoc formats): (1) themed opening line ("The X
-  release. …") + the standing updater sentence "Already on AngKorGit? **Your app
-  will offer this update by itself** — one click, signature-verified. 🏛️";
+  release. …") (the old standing updater sentence "Your app will offer this
+  update by itself" is dropped while the updater is disabled);
   (2) `## Highlights` — emoji-prefixed bold titles written as user benefits in
   narrative voice, NOT changelog Added/Changed categories; (3) `## Fixed` — plain
   bullets, lead with the user-visible symptom; (4) optional `## Removed` /

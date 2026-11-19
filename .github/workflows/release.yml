@@ -20,6 +20,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
+      updater: ${{ steps.version.outputs.updater }}
     steps:
       - uses: actions/checkout@v4
       - name: Read and check the version
@@ -56,13 +57,15 @@ jobs:
             echo "::error::Tag $tag already exists. Bump the version (see the version-alignment checklist) before merging into release."
             exit 1
           fi
-          if [ "$HAS_SIGNING_KEY" != "true" ]; then
-            echo "::error::The TAURI_SIGNING_PRIVATE_KEY secret is not set; see .claude/docs/release-and-ci.md"
+          updater=$(jq -r '.bundle.createUpdaterArtifacts // false' apps/desktop/src-tauri/tauri.conf.json)
+          if [ "$updater" = "true" ] && [ "$HAS_SIGNING_KEY" != "true" ]; then
+            echo "::error::createUpdaterArtifacts is on but the TAURI_SIGNING_PRIVATE_KEY secret is not set; see .claude/docs/release-and-ci.md"
             exit 1
           fi
+          echo "updater=$updater" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "Releasing $tag"
+          echo "Releasing $tag (updater artifacts: $updater)"
 
   build:
     name: Build ${{ matrix.platform }}
@@ -80,6 +83,7 @@ jobs:
             args: ''
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
+      UPDATER: ${{ needs.prepare.outputs.updater }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -133,26 +137,31 @@ jobs:
             fi
             cp "$found" "$out/$2"
           }
+          pick_updater() {
+            if [ "$UPDATER" = "true" ]; then
+              pick "$1" "$2"
+            fi
+          }
           name=Sorted.Git
           case "$RUNNER_OS" in
             macOS)
               pick '*.dmg' "${name}_${VERSION}_universal.dmg"
-              pick '*.app.tar.gz' "${name}_${VERSION}_universal.app.tar.gz"
-              pick '*.app.tar.gz.sig' "${name}_${VERSION}_universal.app.tar.gz.sig"
+              pick_updater '*.app.tar.gz' "${name}_${VERSION}_universal.app.tar.gz"
+              pick_updater '*.app.tar.gz.sig' "${name}_${VERSION}_universal.app.tar.gz.sig"
               ;;
             Windows)
               pick '*-setup.exe' "${name}_${VERSION}_x64-setup.exe"
-              pick '*-setup.exe.sig' "${name}_${VERSION}_x64-setup.exe.sig"
+              pick_updater '*-setup.exe.sig' "${name}_${VERSION}_x64-setup.exe.sig"
               pick '*.msi' "${name}_${VERSION}_x64_en-US.msi"
-              pick '*.msi.sig' "${name}_${VERSION}_x64_en-US.msi.sig"
+              pick_updater '*.msi.sig' "${name}_${VERSION}_x64_en-US.msi.sig"
               ;;
             Linux)
               pick '*.AppImage' "${name}_${VERSION}_amd64.AppImage"
-              pick '*.AppImage.sig' "${name}_${VERSION}_amd64.AppImage.sig"
+              pick_updater '*.AppImage.sig' "${name}_${VERSION}_amd64.AppImage.sig"
               pick '*.deb' "${name}_${VERSION}_amd64.deb"
-              pick '*.deb.sig' "${name}_${VERSION}_amd64.deb.sig"
+              pick_updater '*.deb.sig' "${name}_${VERSION}_amd64.deb.sig"
               pick '*.rpm' "${name}-${VERSION}-1.x86_64.rpm"
-              pick '*.rpm.sig' "${name}-${VERSION}-1.x86_64.rpm.sig"
+              pick_updater '*.rpm.sig' "${name}-${VERSION}-1.x86_64.rpm.sig"
               ;;
           esac
           ls -l "$out"
@@ -173,6 +182,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       VERSION: ${{ needs.prepare.outputs.version }}
       TAG: ${{ needs.prepare.outputs.tag }}
+      UPDATER: ${{ needs.prepare.outputs.updater }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -180,6 +190,7 @@ jobs:
           path: release-assets
           merge-multiple: true
       - name: Write latest.json
+        if: env.UPDATER == 'true'
         run: |
           set -euo pipefail
           cd release-assets
