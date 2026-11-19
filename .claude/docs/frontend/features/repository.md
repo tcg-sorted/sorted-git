@@ -23,8 +23,8 @@ Source: `apps/desktop/src/features/repository` (from §6 Frontend). [Back to the
 │   │                           Open/Reveal disabled in the menu); the search Input is
 │   │                           autoFocus and ↑/↓/⏎ drive an activeIndex highlight; empty
 │   │                           recents render SettingEmpty with Open + Clone; footer shows
-│   │                           `AngKorGit v<version>` (ipc.appVersion) + "Check for
-│   │                           updates" (lazy updater/check); a FolderSearch icon button
+│   │                           `AngKorGit v<version>` (ipc.appVersion); "Check for
+│   │                           updates" is gone with the updater; a FolderSearch icon button
 │   │                           at the END of the Recent repositories header (always
 │   │                           shown, ml-auto when there are no recents) and a "Scan"
 │   │                           button in the empty state call startRepositoryScan →
