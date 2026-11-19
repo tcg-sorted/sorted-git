@@ -20,8 +20,8 @@ craftsmanship from Cambodia 🇰🇭.
   release artifacts, now ad-hoc signed on both slices; 0.13.0 was 14 / 28, 0.12.0 was
   12 / 25 before the single-instance plugin and blame) — a single-arch build is 13 MB
   installed. (vs ~1 GB for Electron-based clients.) Re-measure
-  before quoting it: `du -sh target/universal-apple-darwin/release/bundle/macos/AngKorGit.app`
-- Styled with the company's Sorted design system: Sorted dark theme by default for new installs (14 themes total, dark + light), Sorted Blue the single accent, Sorted S monogram as the logo. The product name stays AngKorGit. Details in [design-system.md](.claude/docs/design-system.md)
+  before quoting it: `du -sh target/universal-apple-darwin/release/bundle/macos/'Sorted Git.app'`
+- Styled with the company's Sorted design system: Sorted dark theme by default for new installs (14 themes total, dark + light), Sorted Blue the single accent, Sorted S monogram as the logo. The product name is Sorted Git (install name, window title, keychain service); the code, package names and docs keep AngKorGit to credit the fork. Details in [design-system.md](.claude/docs/design-system.md)
 - Keyboard-first (⌘K palette), beginner-friendly (visual conflict resolver, confirm
   dialogs, undo/redo), performance-first (virtualized graph & diffs, 100k-commit repos stay smooth)
 
@@ -93,7 +93,7 @@ no build step for packages).
   still usable via `pnpm install:mac`.
 - Root pnpm scripts must run **from repo root**; background shells don't persist `cd`.
 - Rust fmt/clippy are CI gates: `cargo fmt --check && cargo clippy --all-targets -- -D warnings`.
-- `pnpm install:mac` quits a running AngKorGit first (pkill) — a new binary copied under a
+- `pnpm install:mac` quits a running Sorted Git first (pkill) — a new binary copied under a
   running process can never match a macOS folder grant (G50), and the single-instance
   plugin would otherwise just focus the old process.
 

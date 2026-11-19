@@ -14,7 +14,7 @@ AngKorGit is pre-1.0; only the latest release receives security fixes.
 For transparency, the app's security-relevant surface is:
 
 - **Your repositories** — read/write via libgit2, only for repositories you open.
-- **OS keychain** — hosting-account tokens are stored under the `AngKorGit`
+- **OS keychain** — hosting-account tokens are stored under the `Sorted Git`
   keychain service; committer identity is written to per-repository git config.
   Tokens never reach `accounts.json`, which holds only host, username, provider
   and whether the token was verified. A token is offered only to the host it was
@@ -22,10 +22,10 @@ For transparency, the app's security-relevant surface is:
 - **SSH keys** — read from disk (and the SSH agent) to authenticate `git@`
   remotes; never copied or transmitted anywhere else. Keys created by
   Settings → Authentication → SSH are ed25519 and are written **without a
-  passphrase**, because AngKorGit cannot prompt for one — a passphrase-protected
+  passphrase**, because Sorted Git cannot prompt for one — a passphrase-protected
   key only works via your SSH agent. Generation never overwrites an existing key.
 - **AI provider keys** — API keys you enter in Settings → AI are stored in the
-  OS keychain under the same AngKorGit service as hosting accounts, and are sent
+  OS keychain under the same Sorted Git service as hosting accounts, and are sent
   only to the provider you configured. Prefer the installed-CLI or local-model
   providers if you'd rather store no key at all.
 - **AI CLIs** — if you select an installed AI CLI (Claude Code, GitHub Copilot

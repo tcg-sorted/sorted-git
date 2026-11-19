@@ -2,7 +2,7 @@
 
 [Back to the index](../../CLAUDE.md)
 
-- **Local**: `pnpm tauri:build` → `AngKorGit.app` + `AngKorGit_x.y.z_aarch64.dmg`;
+- **Local**: `pnpm tauri:build` → `Sorted Git.app` + `Sorted Git_x.y.z_aarch64.dmg`;
   `pnpm install:mac` installs. Locally-built apps aren't Gatekeeper-quarantined; shared
   dmg recipients need right-click → Open (unsigned).
 - **CI** (`.github/workflows/ci.yml`): frontend typecheck+unit+build · Playwright ·
