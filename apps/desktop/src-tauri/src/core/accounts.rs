@@ -9,7 +9,7 @@ use crate::error::{AppError, AppResult};
 
 pub static CONFIG_DIR: OnceLock<PathBuf> = OnceLock::new();
 
-const KEYRING_SERVICE: &str = "AngKorGit";
+const KEYRING_SERVICE: &str = "Sorted Git";
 
 type TokenCache = Mutex<HashMap<String, Option<String>>>;
 static TOKEN_CACHE: OnceLock<TokenCache> = OnceLock::new();

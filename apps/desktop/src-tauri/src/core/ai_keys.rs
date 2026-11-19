@@ -1,6 +1,6 @@
 use crate::error::{AppError, AppResult};
 
-const KEYRING_SERVICE: &str = "AngKorGit";
+const KEYRING_SERVICE: &str = "Sorted Git";
 
 fn entry(provider: &str) -> AppResult<keyring::Entry> {
     let provider = provider.trim().to_lowercase();

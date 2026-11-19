@@ -125,7 +125,7 @@ async function validateToken(
         method: 'GET',
         headers: {
           authorization: `Basic ${btoa(`${identity}:${token}`)}`,
-          'user-agent': 'AngKorGit',
+          'user-agent': 'SortedGit',
         },
       });
       if (res.status === 401 || res.status === 403) {
@@ -143,7 +143,7 @@ async function validateToken(
         headers: {
           authorization: `Bearer ${token}`,
           accept: 'application/vnd.github+json',
-          'user-agent': 'AngKorGit',
+          'user-agent': 'SortedGit',
         },
       });
       if (res.status !== 200) throw new Error(`GitHub rejected the token (${res.status})`);
