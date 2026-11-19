@@ -54,7 +54,7 @@ import {
   cn,
 } from '@angkorgit/design-system';
 import type { RecentRepository } from '@angkorgit/core';
-import { appVersion, ipc, pickDirectory } from '@/core/ipc';
+import { appVersion, ipc, openExternal, pickDirectory } from '@/core/ipc';
 import { useRepo } from './store';
 import { useUi } from '@/features/ui/store';
 import { useSettings } from '@/features/settings/store';
@@ -71,6 +71,8 @@ import { ScanRepositoriesDialog, startRepositoryScan } from './ScanRepositoriesD
 import { SettingsDialog } from '@/features/settings/SettingsDialog';
 import { SettingEmpty } from '@/features/settings/SettingCard';
 import { isMac, shortenHome, timeAgo } from '@/shared/utils';
+
+const ANGKORGIT_REPO_URL = 'https://github.com/cheat2001/angkorgit';
 
 const UNGROUPED = 'ungrouped';
 const DRAG_TYPE = 'text/angkorgit-repo-path';
@@ -546,7 +548,7 @@ export function WelcomePage() {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
-              AngKorGit
+              Sorted Git
             </h1>
             <p className="text-sm text-muted">Everyday Git, made delightful.</p>
           </div>
@@ -664,19 +666,17 @@ export function WelcomePage() {
         </div>
 
         <p className="mt-6 flex items-center justify-center gap-2 text-[11px] text-faint">
-          <span>{version ? `AngKorGit v${version}` : 'AngKorGit'}</span>
-          <span aria-hidden>·</span>
-          <button
-            type="button"
-            className="hover:text-foreground hover:underline"
-            onClick={() =>
-              void import('@/features/updater/check').then(({ checkForUpdates }) =>
-                checkForUpdates({ silent: false }),
-              )
-            }
-          >
-            Check for updates
-          </button>
+          <span>
+            {version ? `Sorted Git v${version}` : 'Sorted Git'} (
+            <button
+              type="button"
+              className="hover:text-foreground hover:underline"
+              onClick={() => void openExternal(ANGKORGIT_REPO_URL)}
+            >
+              AngKorGit fork
+            </button>
+            )
+          </span>
           <span aria-hidden>·</span>
           <button
             type="button"
