@@ -523,9 +523,9 @@ export const ipc = {
     if (!isTauri()) return;
     return invoke('write_file', { path, file, content });
   },
-  async openPath(target: string): Promise<void> {
+  async openPath(path: string, file: string): Promise<void> {
     if (!isTauri()) return;
-    return invoke('open_path', { path: target });
+    return invoke('open_path', { path, file });
   },
   async pathsExist(paths: string[]): Promise<boolean[]> {
     if (!isTauri()) return paths.map((p) => !p.includes('api-gateway'));
