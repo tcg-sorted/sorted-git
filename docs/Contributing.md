@@ -21,7 +21,8 @@ Thank you for helping make everyday Git delightful! 🙏
 5. Keep commit messages clean. `Co-authored-by` is for people who wrote the change with
    you. Trailers left by coding tools (`Co-authored-by: Cursor`, `Generated with …`,
    a robot emoji) fail the "Commit messages" CI check, so amend or squash them away
-   before you push.
+   before you push. The one exception is a `Co-authored-by: Claude` trailer, which the
+   check allows.
 
 ## What makes a good first contribution
 

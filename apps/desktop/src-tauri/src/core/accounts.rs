@@ -98,6 +98,16 @@ fn upsert(accounts: &mut Vec<AccountInfo>, mut account: AccountInfo) {
     ensure_defaults(accounts);
 }
 
+const RETIRED_PROVIDERS: [&str; 2] = ["gitlab", "gitlab-self"];
+
+fn is_retired_provider(provider: &str) -> bool {
+    RETIRED_PROVIDERS.contains(&provider)
+}
+
+fn drop_retired(accounts: &mut Vec<AccountInfo>) {
+    accounts.retain(|a| !is_retired_provider(&a.provider));
+}
+
 fn ordered_for_host<'a>(
     accounts: &'a [AccountInfo],
     host: &str,
@@ -122,6 +132,7 @@ pub fn list() -> Vec<AccountInfo> {
         .ok()
         .and_then(|raw| serde_json::from_str(&raw).ok())
         .unwrap_or_default();
+    drop_retired(&mut accounts);
     ensure_defaults(&mut accounts);
     accounts
 }
@@ -191,6 +202,10 @@ pub fn add(
     verified: bool,
     email: Option<&str>,
 ) -> AppResult<Vec<AccountInfo>> {
+    if is_retired_provider(provider) {
+        let message = format!("unsupported hosting provider '{provider}'");
+        return Err(AppError::other(message));
+    }
     let host = normalize_host(host);
     if host.is_empty() || username.trim().is_empty() || token.trim().is_empty() {
         return Err(AppError::other("host, username and token are all required"));
@@ -333,7 +348,10 @@ pub fn update_check(
 }
 
 pub fn host_of_url(url: &str) -> Option<String> {
-    let rest = url.split("://").nth(1)?; // http(s) URLs only
+    let (scheme, rest) = url.trim().split_once("://")?;
+    if !scheme.eq_ignore_ascii_case("https") {
+        return None;
+    }
     let authority = rest.split('/').next()?;
     let host = authority.rsplit('@').next()?;
     if host.is_empty() {
@@ -390,7 +408,7 @@ mod tests {
 
     #[test]
     fn first_account_for_a_host_becomes_default() {
-        let mut accounts = vec![account("gitlab.com", "solo", true)];
+        let mut accounts = vec![account("bitbucket.org", "solo", true)];
         upsert(&mut accounts, account("github.com", "first", false));
         let first = accounts.iter().find(|a| a.username == "first").unwrap();
         assert!(first.is_default);
@@ -401,7 +419,7 @@ mod tests {
         let mut accounts = vec![
             account("github.com", "a", false),
             account("github.com", "b", false),
-            account("gitlab.com", "c", true),
+            account("bitbucket.org", "c", true),
         ];
         ensure_defaults(&mut accounts);
         assert_eq!(accounts.iter().filter(|a| a.is_default).count(), 2);
@@ -428,11 +446,23 @@ mod tests {
 
     #[test]
     fn ordered_for_host_matches_hosts_with_ports() {
-        let accounts = vec![account("gitlab.example.com", "dara", true)];
+        let accounts = vec![account("git.example.com", "dara", true)];
         assert_eq!(
-            ordered_for_host(&accounts, "gitlab.example.com:8443", None).len(),
+            ordered_for_host(&accounts, "git.example.com:8443", None).len(),
             1
         );
+    }
+
+    #[test]
+    fn retired_gitlab_accounts_are_dropped_on_load() {
+        let mut gitlab = account("gitlab.com", "old", true);
+        gitlab.provider = "gitlab".to_string();
+        let mut self_hosted = account("git.corp.dev", "old", true);
+        self_hosted.provider = "gitlab-self".to_string();
+        let mut accounts = vec![gitlab, self_hosted, account("github.com", "dara", true)];
+        drop_retired(&mut accounts);
+        assert_eq!(accounts.len(), 1);
+        assert_eq!(accounts[0].provider, "github");
     }
 
     #[test]
@@ -442,5 +472,7 @@ mod tests {
             Some("github.com".to_string())
         );
         assert_eq!(host_of_url("git@github.com:a/b.git"), None);
+        assert_eq!(host_of_url("http://github.com/a/b.git"), None);
+        assert_eq!(host_of_url("ssh://git@github.com/a/b.git"), None);
     }
 }

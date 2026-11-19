@@ -6,6 +6,21 @@ All notable changes to AngKorGit are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- **Avatars come from your connected GitHub account, and nothing else.** Commit
+  author avatars are looked up through the account you connected in Settings, once
+  per author, cached on your machine and paused when GitHub's rate limit is reached.
+  Authors without a match show their initials. AngKorGit no longer sends a hash of
+  every author's email address to Gravatar.
+- **AngKorGit now wears the Sorted design system.** The default theme is Sorted (dark)
+  with Sorted Light beside it: neutral near-black surfaces, one blue for action, grey
+  focus rings, pill-shaped buttons and glass menus and tooltips. The interface font is
+  Archivo, the logo and app icon are the Sorted S monogram, and the website follows
+  the same look. If you used Angkor Dusk or Angkor Dawn, the app switches you to
+  Sorted or Sorted Light, and Temple Gold becomes Sorted Blue.
+- **Accent text is readable in every theme.** Blue text and the labels on blue
+  buttons now reach 4.5:1 contrast on all 14 themes, and so does every optional accent.
+
 ## [0.28.0] — 2026-11-15
 
 The hooks release. AngKorGit now runs the hooks Git runs after a checkout, a pull or

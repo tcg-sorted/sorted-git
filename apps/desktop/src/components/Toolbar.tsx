@@ -138,7 +138,7 @@ function RepoSwitcher() {
         <button
           className={cn(
             'mx-1 flex items-center gap-2 rounded-md px-1.5 py-1 text-left transition-colors hover:bg-surface-raised',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus',
           )}
           disabled={!!busy}
           aria-label="Switch repository"

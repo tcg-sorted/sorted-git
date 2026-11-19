@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { pickRemote, pushSetsUpstream, upstreamRemoteOf } from '@angkorgit/core';
 
 const remotes = [
-  { name: 'gitlab', url: 'git@gitlab.com:team/app.git' },
+  { name: 'mirror', url: 'git@bitbucket.org:team/app.git' },
   { name: 'origin', url: 'git@github.com:me/app.git' },
   { name: 'upstream', url: 'git@github.com:team/app.git' },
 ];
@@ -10,7 +10,7 @@ const remotes = [
 describe('pickRemote', () => {
   it('follows the branch upstream before anything else', () => {
     expect(pickRemote(remotes, 'upstream/main')?.name).toBe('upstream');
-    expect(pickRemote(remotes, 'gitlab/feature/x')?.name).toBe('gitlab');
+    expect(pickRemote(remotes, 'mirror/feature/x')?.name).toBe('mirror');
   });
 
   it('prefers origin over the first remote when there is no usable upstream', () => {
@@ -19,7 +19,7 @@ describe('pickRemote', () => {
   });
 
   it('falls back to the first remote and to null', () => {
-    expect(pickRemote(remotes.slice(0, 1), null)?.name).toBe('gitlab');
+    expect(pickRemote(remotes.slice(0, 1), null)?.name).toBe('mirror');
     expect(pickRemote([], 'origin/main')).toBeNull();
   });
 });
@@ -31,7 +31,7 @@ describe('pushSetsUpstream', () => {
   });
 
   it('leaves the upstream alone when pushing to another remote', () => {
-    expect(pushSetsUpstream('gitlab/main', 'origin')).toBe(false);
+    expect(pushSetsUpstream('mirror/main', 'origin')).toBe(false);
   });
 
   it('reads the remote off the upstream name', () => {

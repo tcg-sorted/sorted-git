@@ -1,39 +1,16 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { sizedAvatarUrl } from '@angkorgit/core';
 import { cn } from '@angkorgit/design-system';
 import { avatarHue, initials } from '@/shared/utils';
-import { forgeAvatarFor } from '@/features/forge/avatars';
+import { cachedForgeAvatar, forgeAvatarFor, forgeAvatarKey } from '@/features/forge/avatars';
+import { useForge } from '@/features/forge/store';
+import { useSettings } from '@/features/settings/store';
 
-const hashCache = new Map<string, Promise<string>>();
-const urlCache = new Map<string, string>();
-const noGravatar = new Set<string>();
-const forgeUrls = new Map<string, string>();
+const brokenUrls = new Set<string>();
 
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-function emailHash(email: string): Promise<string> {
-  const normalized = normalizeEmail(email);
-  let promise = hashCache.get(normalized);
-  if (!promise) {
-    promise = crypto.subtle
-      .digest('SHA-256', new TextEncoder().encode(normalized))
-      .then((buf) =>
-        Array.from(new Uint8Array(buf))
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join(''),
-      );
-    hashCache.set(normalized, promise);
-  }
-  return promise;
-}
-
-function cachedUrl(email: string, size: number): string | null {
-  if (!email) return null;
-  const forge = forgeUrls.get(normalizeEmail(email));
-  if (forge) return forge;
-  if (noGravatar.has(email)) return null;
-  return urlCache.get(`${normalizeEmail(email)}|${size}`) ?? null;
+function usable(url: string | null, size: number): string | null {
+  if (!url || brokenUrls.has(url)) return null;
+  return sizedAvatarUrl(url, size * 2);
 }
 
 export const Avatar = memo(function Avatar({
@@ -51,9 +28,12 @@ export const Avatar = memo(function Avatar({
   className?: string;
   title?: string;
 }) {
-  const [url, setUrl] = useState<string | null>(() => cachedUrl(email, size));
+  const forgeKey = useForge(forgeAvatarKey);
+  const forgeEnabled = useSettings((s) => s.showPullRequests);
+  const [source, setSource] = useState<string | null>(() => cachedForgeAvatar(email));
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
+  const url = usable(source, size);
 
   useLayoutEffect(() => {
     const img = imgRef.current;
@@ -62,32 +42,20 @@ export const Avatar = memo(function Avatar({
 
   useEffect(() => {
     let cancelled = false;
-    const cached = cachedUrl(email, size);
-    setUrl(cached);
+    const cached = cachedForgeAvatar(email);
+    setSource(cached);
     setLoaded(false);
-    if (cached || !email) return;
-    if (noGravatar.has(email)) {
-      const forge = oid ? forgeAvatarFor(email, oid) : null;
-      if (forge) {
-        void forge.then((resolved) => {
-          if (cancelled || !resolved) return;
-          forgeUrls.set(normalizeEmail(email), resolved);
-          setUrl(resolved);
-        });
-      }
-      return;
+    if (cached || !email || !oid) return;
+    const pending = forgeAvatarFor(email, oid);
+    if (pending) {
+      void pending.then((resolved) => {
+        if (!cancelled && resolved) setSource(resolved);
+      });
     }
-    void emailHash(email).then((hash) => {
-      if (!cancelled) {
-        const resolved = `https://www.gravatar.com/avatar/${hash}?s=${Math.ceil(size * 2)}&d=404`;
-        urlCache.set(`${normalizeEmail(email)}|${size}`, resolved);
-        setUrl(resolved);
-      }
-    });
     return () => {
       cancelled = true;
     };
-  }, [email, size, oid]);
+  }, [email, oid, forgeKey, forgeEnabled]);
 
   return (
     <span
@@ -111,27 +79,15 @@ export const Avatar = memo(function Avatar({
           src={url}
           alt=""
           loading="lazy"
+          referrerPolicy="no-referrer"
           className={cn(
             'absolute inset-0 h-full w-full object-cover transition-opacity duration-150',
             loaded ? 'opacity-100' : 'opacity-0',
           )}
           onLoad={() => setLoaded(true)}
           onError={() => {
-            if (forgeUrls.get(normalizeEmail(email)) === url) {
-              forgeUrls.delete(normalizeEmail(email));
-              setUrl(null);
-              return;
-            }
-            noGravatar.add(email);
-            setUrl(null);
-            const forge = oid ? forgeAvatarFor(email, oid) : null;
-            if (forge) {
-              void forge.then((resolved) => {
-                if (!resolved) return;
-                forgeUrls.set(normalizeEmail(email), resolved);
-                setUrl(resolved);
-              });
-            }
+            if (source) brokenUrls.add(source);
+            setSource(null);
           }}
         />
       )}

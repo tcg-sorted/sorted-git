@@ -16,7 +16,14 @@ body {
   @apply bg-background font-sans text-sm text-foreground antialiased;
 }
 
-/* Subtle scrollbars everywhere */
+::selection {
+  background: hsl(var(--primary) / 0.32);
+}
+
+:focus-visible {
+  outline-color: hsl(var(--border-focus));
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--border)) transparent;
@@ -27,7 +34,7 @@ body {
 }
 *::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;
@@ -39,7 +46,6 @@ body {
   display: none;
 }
 
-/* Resizable panel handles */
 [data-panel-resize-handle-id] {
   position: relative;
 }
@@ -57,7 +63,6 @@ body {
   border-radius: 2px;
 }
 
-/* Syntax palette flows from theme tokens (see design-system themes.css) */
 .hljs-keyword, .hljs-literal, .hljs-built_in { color: hsl(var(--syntax-keyword)); }
 .hljs-string, .hljs-regexp { color: hsl(var(--syntax-string)); }
 .hljs-number { color: hsl(var(--syntax-number)); }
@@ -67,7 +72,6 @@ body {
 .hljs-type, .hljs-class, .hljs-selector-tag, .hljs-selector-class, .hljs-selector-id { color: hsl(var(--syntax-type)); }
 .hljs-selector-pseudo { color: hsl(var(--syntax-keyword)); }
 
-/* xterm fills its panel */
 .terminal-host .xterm {
   height: 100%;
   padding: 8px;

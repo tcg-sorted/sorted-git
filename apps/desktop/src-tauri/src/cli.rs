@@ -452,11 +452,11 @@ mod tests {
         );
         assert_eq!(
             parse_args(
-                &args(&["clone", "-b", "dev", "https://gitlab.com/acme/app.git"]),
+                &args(&["clone", "-b", "dev", "https://bitbucket.org/acme/app.git"]),
                 Some("/src")
             ),
             Some(CliRequest::Clone {
-                url: "https://gitlab.com/acme/app.git".into(),
+                url: "https://bitbucket.org/acme/app.git".into(),
                 into: "/src".into(),
                 branch: Some("dev".into()),
             })

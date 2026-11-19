@@ -68,7 +68,7 @@ import { useUi } from '@/features/ui/store';
 import { useUndo, type UndoKind } from '@/features/history/undoStore';
 import { useForge } from '@/features/forge/store';
 import { useSettings } from '@/features/settings/store';
-import { forgeNoun, pullRequestCheckoutSpec, remoteWebUrl } from '@angkorgit/core';
+import { pullRequestCheckoutSpec, remoteWebUrl } from '@angkorgit/core';
 import type { BranchInfo, PullRequestInfo, RemoteInfo, StashInfo, SubmoduleInfo, TagInfo, WorktreeInfo } from '@angkorgit/core';
 import { capCount, isMac } from '@/shared/utils';
 import { killTerminalSession } from '@/features/terminal/sessions';
@@ -438,7 +438,7 @@ export function Sidebar() {
     const spec = forgeRemote ? pullRequestCheckoutSpec(forgeRemote.kind, pr) : null;
     if (!spec) {
       toast.error(
-        `This ${forgeNoun(forgeRemote?.kind)} cannot be checked out from AngKorGit — open it in the browser instead.`,
+        `This pull request cannot be checked out from AngKorGit — open it in the browser instead.`,
       );
       return;
     }
@@ -1005,7 +1005,7 @@ export function Sidebar() {
           <Section
             {...section('pullRequests')}
             icon={<GitPullRequest className="size-3.5" />}
-            title={forgeNoun(forgeRemote.kind, { plural: true, capitalize: true })}
+            title="Pull requests"
             count={filteredPrs.length}
             action={
               <span className="flex items-center">
@@ -1038,7 +1038,7 @@ export function Sidebar() {
                 onClick={() => openDialog('settings')}
               >
                 Connect a {forgeRemote.host} account in Settings → Authentication to see{' '}
-                {forgeNoun(forgeRemote.kind, { plural: true })}.
+                pull requests.
               </button>
             )}
             {forgeAccount && forgeError && (
@@ -1053,7 +1053,7 @@ export function Sidebar() {
             )}
             {forgeAccount && !forgeError && filteredPrs.length === 0 && !forgeLoading && (
               <div className="px-2 py-1 pl-7 text-xs text-faint">
-                No open {forgeNoun(forgeRemote.kind, { plural: true })}
+                No open pull requests
               </div>
             )}
             {forgeLoading && filteredPrs.length === 0 && (

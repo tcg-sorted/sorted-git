@@ -53,7 +53,7 @@ import { installCliTool } from '@/features/settings/cliTool';
 import { openInEditor, preferredEditor, useEditors } from '@/features/settings/editors';
 import { useUndo } from '@/features/history/undoStore';
 import { useForge } from '@/features/forge/store';
-import { chordLabels, forgeNoun, groupRepos, parseChordId, pickForgeRemote, pickRemote, pushSetsUpstream, remoteWebUrl, repoGroupIdFor } from '@angkorgit/core';
+import { chordLabels, groupRepos, parseChordId, pickForgeRemote, pickRemote, pushSetsUpstream, remoteWebUrl, repoGroupIdFor } from '@angkorgit/core';
 import { closeRepoGroup, openRepoGroup, plural } from '@/features/repository/groups';
 import { currentPullRequestUrl, isMac, modKey } from '@/shared/utils';
 
@@ -384,7 +384,7 @@ export function CommandPalette({ onRefresh }: { onRefresh: () => Promise<void> }
                 {prUrl && (
                   <PaletteItem
                     icon={<GitPullRequest />}
-                    label={`Create ${forgeNoun(forgeCurrent ? forgeKind : null)}`}
+                    label="Create pull request"
                     onSelect={() => {
                       close();
                       if (inApp) openDialog('createPullRequest');

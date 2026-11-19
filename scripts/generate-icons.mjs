@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 import { deflateSync } from 'node:zlib';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outDir = join(root, 'apps/desktop/src-tauri/icons');
-mkdirSync(outDir, { recursive: true });
+const iconsDir = join(root, 'apps/desktop/src-tauri/icons');
+const sourceDir = join(iconsDir, 'source');
+const sourceSvg = join(sourceDir, 'sorted-monogram.svg');
+const SIZE = 1024;
+const SUBROWS = 4;
 
 const crcTable = Array.from({ length: 256 }, (_, n) => {
   let c = n;
@@ -26,18 +29,11 @@ function chunk(type, data) {
   crc.writeUInt32BE(crc32(body));
   return Buffer.concat([len, body, crc]);
 }
-function png(size, pixelFn) {
+function encodePng(size, rgba) {
   const raw = Buffer.alloc(size * (size * 4 + 1));
   for (let y = 0; y < size; y++) {
     raw[y * (size * 4 + 1)] = 0;
-    for (let x = 0; x < size; x++) {
-      const [r, g, b, a] = pixelFn(x, y, size);
-      const off = y * (size * 4 + 1) + 1 + x * 4;
-      raw[off] = r;
-      raw[off + 1] = g;
-      raw[off + 2] = b;
-      raw[off + 3] = a;
-    }
+    rgba.copy(raw, y * (size * 4 + 1) + 1, y * size * 4, (y + 1) * size * 4);
   }
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(size, 0);
@@ -52,107 +48,157 @@ function png(size, pixelFn) {
   ]);
 }
 
-const lerp = (a, b, t) => a + (b - a) * t;
-const mix = (c1, c2, t) => [lerp(c1[0], c2[0], t), lerp(c1[1], c2[1], t), lerp(c1[2], c2[2], t)];
+const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
 
-const BG_TOP = [27, 37, 55]; // deep slate
-const BG_BOTTOM = [11, 16, 28];
-const GOLD_TOP = [245, 166, 35]; // Temple Gold gradient
-const GOLD_BOTTOM = [196, 106, 8];
-const CREAM = [244, 214, 168];
-const NODE_GOLD = [240, 180, 41];
-
-function inTower(u, v, cx, y0, y1, halfTop, halfBottom) {
-  if (v < y0 || v > y1) return false;
-  const t = (v - y0) / (y1 - y0);
-  return Math.abs(u - cx) <= lerp(halfTop, halfBottom, t);
-}
-const inCircle = (u, v, cx, cy, r) => (u - cx) ** 2 + (v - cy) ** 2 <= r * r;
-
-function centerTower(u, v) {
-  return (
-    inTower(u, v, 0.5, 0.095, 0.215, 0.0, 0.038) ||
-    inTower(u, v, 0.5, 0.215, 0.3, 0.044, 0.058) ||
-    inTower(u, v, 0.5, 0.3, 0.41, 0.064, 0.078) ||
-    inTower(u, v, 0.5, 0.41, 0.6, 0.086, 0.098)
-  );
-}
-function sideTower(u, v, cx) {
-  return (
-    inTower(u, v, cx, 0.27, 0.365, 0.0, 0.032) ||
-    inTower(u, v, cx, 0.365, 0.45, 0.038, 0.05) ||
-    inTower(u, v, cx, 0.45, 0.6, 0.056, 0.068)
-  );
+function parseColor(value) {
+  if (value === 'white') return [255, 255, 255];
+  if (value === 'black') return [0, 0, 0];
+  const hex = value.match(/^#([0-9a-f]{6})$/i)?.[1];
+  if (!hex) throw new Error(`Unsupported fill "${value}" in ${sourceSvg}`);
+  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
 }
 
-function sample(u, v, cornerRadius) {
-  const dx = Math.max(cornerRadius - u, u - (1 - cornerRadius), 0);
-  const dy = Math.max(cornerRadius - v, v - (1 - cornerRadius), 0);
-  if (dx * dx + dy * dy > cornerRadius * cornerRadius) return null;
-
-  const goldAt = (vv) => mix(GOLD_TOP, GOLD_BOTTOM, Math.min(Math.max((vv - 0.1) / 0.6, 0), 1));
-
-  if (inCircle(u, v, 0.3, 0.795, 0.036)) return NODE_GOLD;
-  if (inCircle(u, v, 0.7, 0.795, 0.036)) return NODE_GOLD;
-  if (inCircle(u, v, 0.5, 0.855, 0.038)) return CREAM;
-
-  if (v >= 0.787 && v <= 0.803 && u >= 0.3 && u <= 0.7) return CREAM;
-  if (Math.abs(u - 0.5) <= 0.008 && v >= 0.72 && v <= 0.855) return CREAM;
-
-  if (inTower(u, v, 0.5, 0.6, 0.655, 0.34, 0.36)) return goldAt(v);
-  if (inTower(u, v, 0.5, 0.655, 0.7, 0.4, 0.42)) return goldAt(v);
-
-  if (centerTower(u, v) || sideTower(u, v, 0.285) || sideTower(u, v, 0.715)) return goldAt(v);
-
-  let bg = mix(BG_TOP, BG_BOTTOM, v);
-  const glow = Math.max(0, 1 - Math.hypot((u - 0.5) / 0.55, (v - 0.42) / 0.5));
-  bg = mix(bg, [58, 63, 76], glow * glow * 0.35);
-  return bg;
+function cubic(points, p0, p1, p2, p3) {
+  const steps = 48;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const u = 1 - t;
+    points.push([
+      u * u * u * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t * t * t * p3[0],
+      u * u * u * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t * t * t * p3[1],
+    ]);
+  }
 }
 
-const SS = 4; // 4×4 supersampling
-function pixel(x, y, size) {
-  const cornerRadius = 0.223;
-  let r = 0,
-    g = 0,
-    b = 0,
-    a = 0;
-  for (let sy = 0; sy < SS; sy++) {
-    for (let sx = 0; sx < SS; sx++) {
-      const u = (x + (sx + 0.5) / SS) / size;
-      const v = (y + (sy + 0.5) / SS) / size;
-      const c = sample(u, v, cornerRadius);
-      if (c) {
-        r += c[0];
-        g += c[1];
-        b += c[2];
-        a += 255;
+function flattenPath(d) {
+  const tokens = d.match(/[MLHVCZ]|-?\d*\.?\d+(?:e-?\d+)?/gi);
+  const polygons = [];
+  let points = [];
+  let current = [0, 0];
+  let command = '';
+  let i = 0;
+  const num = () => Number(tokens[i++]);
+  while (i < tokens.length) {
+    if (/^[a-z]$/i.test(tokens[i])) command = tokens[i++];
+    if (command !== command.toUpperCase()) throw new Error(`Relative path command "${command}" is not supported`);
+    if (command === 'M') {
+      if (points.length) polygons.push(points);
+      current = [num(), num()];
+      points = [current];
+      command = 'L';
+    } else if (command === 'L') {
+      current = [num(), num()];
+      points.push(current);
+    } else if (command === 'H') {
+      current = [num(), current[1]];
+      points.push(current);
+    } else if (command === 'V') {
+      current = [current[0], num()];
+      points.push(current);
+    } else if (command === 'C') {
+      const c1 = [num(), num()];
+      const c2 = [num(), num()];
+      const end = [num(), num()];
+      cubic(points, current, c1, c2, end);
+      current = end;
+    } else if (command === 'Z') {
+      if (points.length) polygons.push(points);
+      points = [];
+    } else {
+      throw new Error(`Path command "${command}" is not supported`);
+    }
+  }
+  if (points.length) polygons.push(points);
+  return polygons;
+}
+
+function roundedRect(width, height, radius) {
+  const k = 0.5522847498 * radius;
+  const points = [[radius, 0], [width - radius, 0]];
+  cubic(points, [width - radius, 0], [width - radius + k, 0], [width, radius - k], [width, radius]);
+  points.push([width, height - radius]);
+  cubic(points, [width, height - radius], [width, height - radius + k], [width - radius + k, height], [width - radius, height]);
+  points.push([radius, height]);
+  cubic(points, [radius, height], [radius - k, height], [0, height - radius + k], [0, height - radius]);
+  points.push([0, radius]);
+  cubic(points, [0, radius], [0, radius - k], [radius - k, 0], [radius, 0]);
+  return [points];
+}
+
+function coverage(polygons, scale) {
+  const edges = [];
+  for (const polygon of polygons) {
+    for (let j = 0; j < polygon.length; j++) {
+      const a = polygon[j];
+      const b = polygon[(j + 1) % polygon.length];
+      if (a[1] === b[1]) continue;
+      edges.push([a[0] * scale, a[1] * scale, b[0] * scale, b[1] * scale]);
+    }
+  }
+  const cover = new Float32Array(SIZE * SIZE);
+  for (let row = 0; row < SIZE * SUBROWS; row++) {
+    const y = (row + 0.5) / SUBROWS;
+    const crossings = [];
+    for (const [x0, y0, x1, y1] of edges) {
+      if ((y0 <= y && y1 > y) || (y1 <= y && y0 > y)) {
+        crossings.push([x0 + ((y - y0) / (y1 - y0)) * (x1 - x0), y1 > y0 ? 1 : -1]);
+      }
+    }
+    crossings.sort((p, q) => p[0] - q[0]);
+    const base = Math.floor(row / SUBROWS) * SIZE;
+    let winding = 0;
+    for (let c = 0; c < crossings.length - 1; c++) {
+      winding += crossings[c][1];
+      if (winding === 0) continue;
+      const from = Math.max(0, crossings[c][0]);
+      const to = Math.min(SIZE, crossings[c + 1][0]);
+      for (let px = Math.floor(from); px < to; px++) {
+        const span = Math.min(to, px + 1) - Math.max(from, px);
+        if (span > 0) cover[base + px] += span / SUBROWS;
       }
     }
   }
-  const n = SS * SS;
-  return a === 0
-    ? [0, 0, 0, 0]
-    : [Math.round(r / (a / 255)), Math.round(g / (a / 255)), Math.round(b / (a / 255)), Math.round(a / n)];
+  return cover;
 }
 
-for (const [name, size] of [
-  ['32x32.png', 32],
-  ['128x128.png', 128],
-  ['128x128@2x.png', 256],
-  ['icon.png', 1024],
-  ['Square107x107Logo.png', 107],
-  ['Square142x142Logo.png', 142],
-  ['Square150x150Logo.png', 150],
-  ['Square284x284Logo.png', 284],
-  ['Square30x30Logo.png', 30],
-  ['Square310x310Logo.png', 310],
-  ['Square44x44Logo.png', 44],
-  ['Square71x71Logo.png', 71],
-  ['Square89x89Logo.png', 89],
-  ['StoreLogo.png', 50],
-]) {
-  writeFileSync(join(outDir, name), png(size, pixel));
-  console.log(`generated icons/${name}`);
+const svg = readFileSync(sourceSvg, 'utf8');
+const viewBox = (attr(svg.match(/<svg[^>]*>/)[0], 'viewBox') ?? '0 0 32 32').split(/\s+/).map(Number);
+const scale = SIZE / viewBox[2];
+const layers = [];
+for (const tag of svg.match(/<(rect|path)\b[^>]*>/g) ?? []) {
+  const fill = parseColor(attr(tag, 'fill'));
+  if (tag.startsWith('<rect')) {
+    const width = Number(attr(tag, 'width'));
+    const height = Number(attr(tag, 'height'));
+    layers.push({ fill, cover: coverage(roundedRect(width, height, Number(attr(tag, 'rx') ?? 0)), scale) });
+  } else {
+    layers.push({ fill, cover: coverage(flattenPath(attr(tag, 'd')), scale) });
+  }
 }
-console.log('\nDone. For .icns/.ico run: pnpm --filter @angkorgit/desktop exec tauri icon src-tauri/icons/icon.png');
+
+const rgba = Buffer.alloc(SIZE * SIZE * 4);
+for (let p = 0; p < SIZE * SIZE; p++) {
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let a = 0;
+  for (const { fill, cover } of layers) {
+    const alpha = Math.min(1, cover[p]);
+    r = fill[0] * alpha + r * (1 - alpha);
+    g = fill[1] * alpha + g * (1 - alpha);
+    b = fill[2] * alpha + b * (1 - alpha);
+    a = alpha + a * (1 - alpha);
+  }
+  const o = p * 4;
+  rgba[o] = a ? Math.round(r / a) : 0;
+  rgba[o + 1] = a ? Math.round(g / a) : 0;
+  rgba[o + 2] = a ? Math.round(b / a) : 0;
+  rgba[o + 3] = Math.round(a * 255);
+}
+
+const png = encodePng(SIZE, rgba);
+mkdirSync(sourceDir, { recursive: true });
+writeFileSync(join(sourceDir, 'sorted-icon-1024.png'), png);
+writeFileSync(join(iconsDir, 'icon.png'), png);
+console.log('generated icons/source/sorted-icon-1024.png and icons/icon.png from icons/source/sorted-monogram.svg');
+console.log('\nFor every platform icon run: pnpm --filter @angkorgit/desktop exec tauri icon src-tauri/icons/icon.png');

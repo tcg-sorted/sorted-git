@@ -123,7 +123,7 @@ export function RepoShortcutDialog() {
             onKeyDown={onKeyDown}
             className={cn(
               'flex h-16 items-center justify-center gap-1.5 rounded-md border border-dashed bg-surface-raised/50 outline-none transition-colors',
-              'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30',
+              'focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus',
               problem ? 'border-danger/60' : 'border-border',
             )}
           >

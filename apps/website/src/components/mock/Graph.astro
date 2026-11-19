@@ -114,7 +114,7 @@ const hue: Record<string, number> = { 'Sokha Chan': 150, 'Dara Kim': 300, 'Maly 
                 <circle cx={X(row.lane)} cy={CY} r="13.5" fill="hsl(var(--background))" />
                 <circle cx={X(row.lane)} cy={CY} r="12" fill={color(row.lane, laneAlt(i))} />
                 <circle cx={X(row.lane)} cy={CY} r="10" fill={`hsl(${hue[row.author]} 45% 45%)`} />
-                <text x={X(row.lane)} y={CY + 3} text-anchor="middle" font-size="8.5" font-family="Inter Variable, Inter, sans-serif" font-weight="600" fill="white">{initials(row.author)}</text>
+                <text x={X(row.lane)} y={CY + 3} text-anchor="middle" font-size="8.5" font-family="Archivo Variable, Archivo, sans-serif" font-weight="600" fill="white">{initials(row.author)}</text>
               </>
             )}
           </svg>

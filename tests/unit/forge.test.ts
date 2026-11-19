@@ -7,7 +7,6 @@ import {
   forgeTargets,
   githubApiBase,
   githubForgeProvider,
-  gitlabForgeProvider,
   parseForgeRemote,
   pickForgeRemote,
   type HttpRequest,
@@ -64,11 +63,9 @@ describe('parseForgeRemote', () => {
     expect(parseForgeRemote('https://github.com/a/b/c')).toBeNull();
   });
 
-  it('parses gitlab subgroups into the owner', () => {
-    const remote = parseForgeRemote('git@gitlab.example.com:group/subgroup/project.git');
-    expect(remote?.kind).toBe('gitlab');
-    expect(remote?.owner).toBe('group/subgroup');
-    expect(remote?.repo).toBe('project');
+  it('treats gitlab hosts as no forge', () => {
+    expect(parseForgeRemote('git@gitlab.com:group/project.git')).toBeNull();
+    expect(parseForgeRemote('https://gitlab.example.com/group/subgroup/project.git')).toBeNull();
   });
 
   it('parses bitbucket cloud and server shapes', () => {
@@ -88,11 +85,9 @@ describe('parseForgeRemote', () => {
 });
 
 describe('createForgeProvider', () => {
-  it('creates providers for github, gitlab and bitbucket cloud', () => {
+  it('creates providers for github and bitbucket cloud', () => {
     const { http } = fakeHttp(() => ({ status: 200, body: '[]' }));
     expect(createForgeProvider(githubRemote(), http)?.kind).toBe('github');
-    const gitlab = parseForgeRemote('git@gitlab.com:group/project.git');
-    expect(gitlab && createForgeProvider(gitlab, http)?.kind).toBe('gitlab');
     const cloud = parseForgeRemote('git@bitbucket.org:team/repo.git');
     expect(cloud && createForgeProvider(cloud, http)?.kind).toBe('bitbucket');
   });
@@ -221,110 +216,6 @@ describe('githubForgeProvider', () => {
       sourceRef: 'refs/pull/12/head',
       localBranch: 'pr/12',
       track: false,
-    });
-  });
-});
-
-describe('gitlabForgeProvider', () => {
-  const gitlabRemote = () => {
-    const remote = parseForgeRemote('git@gitlab.example.com:group/subgroup/project.git');
-    if (!remote) throw new Error('expected a parsed remote');
-    return remote;
-  };
-
-  const sampleMr = (overrides: Record<string, unknown> = {}) => ({
-    iid: 7,
-    title: 'Fix pipeline',
-    web_url: 'https://gitlab.example.com/group/subgroup/project/-/merge_requests/7',
-    state: 'opened',
-    draft: false,
-    sha: 'abc999',
-    created_at: '2026-08-20T10:00:00Z',
-    updated_at: '2026-08-21T11:30:00Z',
-    author: { username: 'maly', avatar_url: 'https://gitlab.example.com/a.png' },
-    source_branch: 'fix/pipeline',
-    target_branch: 'main',
-    source_project_id: 42,
-    target_project_id: 42,
-    ...overrides,
-  });
-
-  it('lists merge requests through the url-encoded project path', async () => {
-    const { http, calls } = fakeHttp(() => ({
-      status: 200,
-      body: JSON.stringify([sampleMr(), sampleMr({ iid: 8, source_project_id: 99 })]),
-    }));
-    const prs = await gitlabForgeProvider(gitlabRemote(), http).listOpenPullRequests();
-    expect(calls[0].url).toBe(
-      'https://gitlab.example.com/api/v4/projects/group%2Fsubgroup%2Fproject/merge_requests?state=opened&order_by=updated_at&sort=desc&per_page=50',
-    );
-    expect(prs[0]).toMatchObject({
-      number: 7,
-      author: 'maly',
-      sourceBranch: 'fix/pipeline',
-      state: 'open',
-      isFromFork: false,
-    });
-    expect(prs[1].isFromFork).toBe(true);
-  });
-
-  it('creates a merge request with a draft title prefix', async () => {
-    const { http, calls } = fakeHttp(() => ({ status: 201, body: JSON.stringify(sampleMr()) }));
-    await gitlabForgeProvider(gitlabRemote(), http).createPullRequest({
-      title: 'Fix pipeline',
-      body: 'Details',
-      sourceBranch: 'fix/pipeline',
-      targetBranch: 'main',
-      draft: true,
-    });
-    expect(JSON.parse(calls[0].body ?? '{}')).toEqual({
-      title: 'Draft: Fix pipeline',
-      description: 'Details',
-      source_branch: 'fix/pipeline',
-      target_branch: 'main',
-    });
-  });
-
-  it('surfaces gitlab array error messages', async () => {
-    const { http } = fakeHttp(() => ({
-      status: 409,
-      body: JSON.stringify({ message: ['Another open merge request already exists'] }),
-    }));
-    await expect(
-      gitlabForgeProvider(gitlabRemote(), http).listOpenPullRequests(),
-    ).rejects.toMatchObject({
-      status: 409,
-      message: expect.stringContaining('Another open merge request'),
-    });
-  });
-
-  it('checks out fork merge requests via refs/merge-requests', () => {
-    const { http } = fakeHttp(() => ({ status: 200, body: '[]' }));
-    const provider = gitlabForgeProvider(gitlabRemote(), http);
-    const pr = {
-      number: 7,
-      title: 't',
-      author: 'a',
-      authorAvatarUrl: null,
-      sourceBranch: 'fix/pipeline',
-      targetBranch: 'main',
-      url: '',
-      state: 'open' as const,
-      isDraft: false,
-      isFromFork: true,
-      headSha: '',
-      createdAt: 0,
-      updatedAt: 0,
-    };
-    expect(provider.checkoutSpec(pr)).toEqual({
-      sourceRef: 'refs/merge-requests/7/head',
-      localBranch: 'mr/7',
-      track: false,
-    });
-    expect(provider.checkoutSpec({ ...pr, isFromFork: false })).toEqual({
-      sourceRef: 'refs/heads/fix/pipeline',
-      localBranch: 'fix/pipeline',
-      track: true,
     });
   });
 });
@@ -464,47 +355,6 @@ describe('github validation errors', () => {
   });
 });
 
-describe('gitlab self-hosted scheme fallback', () => {
-  it('retries over http when the https transport fails on a self-hosted instance', async () => {
-    const calls: HttpRequest[] = [];
-    const http = async (request: HttpRequest): Promise<HttpResponse> => {
-      calls.push(request);
-      if (request.url.startsWith('https://')) {
-        throw new Error('request failed: error sending request for url');
-      }
-      return { status: 200, body: '[]' };
-    };
-    const remote = parseForgeRemote('git@gitlab.example.com:team/api.git');
-    if (!remote) throw new Error('expected a parsed remote');
-    const prs = await gitlabForgeProvider(remote, http).listOpenPullRequests();
-    expect(prs).toEqual([]);
-    expect(calls[0].url.startsWith('https://gitlab.example.com/api/v4/')).toBe(true);
-    expect(calls[1].url.startsWith('http://gitlab.example.com/api/v4/')).toBe(true);
-  });
-
-  it('never falls back to http for gitlab.com or on api-level errors', async () => {
-    const attempted: string[] = [];
-    const failing = async (request: HttpRequest): Promise<HttpResponse> => {
-      attempted.push(request.url);
-      throw new Error('request failed: error sending request for url');
-    };
-    const cloud = parseForgeRemote('git@gitlab.com:group/project.git');
-    if (!cloud) throw new Error('expected a parsed remote');
-    await expect(gitlabForgeProvider(cloud, failing).listOpenPullRequests()).rejects.toThrow();
-    expect(attempted).toHaveLength(1);
-
-    const apiError = async (): Promise<HttpResponse> => ({
-      status: 401,
-      body: JSON.stringify({ message: '401 Unauthorized' }),
-    });
-    const selfHosted = parseForgeRemote('git@gitlab.example.com:group/project.git');
-    if (!selfHosted) throw new Error('expected a parsed remote');
-    await expect(
-      gitlabForgeProvider(selfHosted, apiError).listOpenPullRequests(),
-    ).rejects.toMatchObject({ status: 401 });
-  });
-});
-
 describe('reviewer candidates and requests', () => {
   it('github lists collaborators and requests reviewers after creating', async () => {
     const { http, calls } = fakeHttp((request) => {
@@ -560,41 +410,6 @@ describe('reviewer candidates and requests', () => {
     expect(pr.number).toBe(31);
   });
 
-  it('gitlab lists project members and embeds reviewer_ids on create', async () => {
-    const remote = parseForgeRemote('git@gitlab.example.com:group/project.git');
-    if (!remote) throw new Error('expected a parsed remote');
-    const { http, calls } = fakeHttp((request) => {
-      if (request.url.includes('/members/all')) {
-        return {
-          status: 200,
-          body: JSON.stringify([
-            { id: 5, username: 'maly', name: 'Maly Sok', avatar_url: 'https://a/maly', state: 'active' },
-            { id: 6, username: 'gone', name: 'Blocked', state: 'blocked' },
-          ]),
-        };
-      }
-      return {
-        status: 201,
-        body: JSON.stringify({ iid: 9, title: 't', state: 'opened' }),
-      };
-    });
-    const provider = gitlabForgeProvider(remote, http);
-    const users = await provider.listReviewerCandidates();
-    expect(users).toEqual([
-      { id: '5', username: 'maly', name: 'Maly Sok', avatarUrl: 'https://a/maly' },
-    ]);
-    await provider.createPullRequest({
-      title: 't',
-      body: '',
-      sourceBranch: 'f',
-      targetBranch: 'main',
-      draft: false,
-      reviewerIds: ['5'],
-    });
-    const createCall = calls.find((c) => c.method === 'POST');
-    expect(JSON.parse(createCall?.body ?? '{}').reviewer_ids).toEqual([5]);
-  });
-
   it('bitbucket lists workspace members and embeds reviewer uuids on create', async () => {
     const remote = parseForgeRemote('git@bitbucket.org:team/repo.git');
     if (!remote) throw new Error('expected a parsed remote');
@@ -639,47 +454,6 @@ describe('reviewer candidates and requests', () => {
   });
 });
 
-describe('gitlab scheme fallback safety', () => {
-  it('never retries a POST over http', async () => {
-    const attempted: string[] = [];
-    const http = async (request: HttpRequest): Promise<HttpResponse> => {
-      attempted.push(request.url);
-      throw new Error('request failed: error sending request for url');
-    };
-    const remote = parseForgeRemote('git@gitlab-post.corp.dev:g/p.git');
-    if (!remote) throw new Error('expected a parsed remote');
-    await expect(
-      gitlabForgeProvider(remote, http).createPullRequest({
-        title: 't',
-        body: '',
-        sourceBranch: 'f',
-        targetBranch: 'main',
-        draft: false,
-      }),
-    ).rejects.toThrow();
-    expect(attempted).toHaveLength(1);
-    expect(attempted[0].startsWith('https://')).toBe(true);
-  });
-
-  it('keeps a valid base when concurrent requests fall back together', async () => {
-    const urls: string[] = [];
-    const http = async (request: HttpRequest): Promise<HttpResponse> => {
-      urls.push(request.url);
-      if (request.url.startsWith('https://')) {
-        throw new Error('request failed: error sending request for url');
-      }
-      return { status: 200, body: request.url.includes('/merge_requests') ? '[]' : '{}' };
-    };
-    const remote = parseForgeRemote('git@gitlab-race.corp.dev:g/p.git');
-    if (!remote) throw new Error('expected a parsed remote');
-    const provider = gitlabForgeProvider(remote, http);
-    await Promise.all([provider.listOpenPullRequests(), provider.defaultBranch()]);
-    await provider.listOpenPullRequests();
-    expect(urls.every((url) => !url.includes('undefined'))).toBe(true);
-    expect(urls[urls.length - 1].startsWith('http://gitlab-race.corp.dev/api/v4/')).toBe(true);
-  });
-});
-
 describe('authorAvatar', () => {
   it('github reads the avatar of the commit author', async () => {
     const { http, calls } = fakeHttp((request) =>
@@ -692,20 +466,6 @@ describe('authorAvatar', () => {
     expect(calls[0].url).toBe('https://api.github.com/repos/cheat2001/angkorgit/commits/abc123');
     const { http: unknown } = fakeHttp(() => ({ status: 200, headers: {}, body: JSON.stringify({ author: null }) }));
     expect(await createForgeProvider(githubRemote(), unknown)!.authorAvatar({ email: 'x', sha: 'abc' })).toBeNull();
-  });
-
-  it('gitlab asks the avatar endpoint by email', async () => {
-    const remote = parseForgeRemote('git@gitlab.avatars.test:group/subgroup/project.git')!;
-    const { http, calls } = fakeHttp(() => ({
-      status: 200,
-      headers: {},
-      body: JSON.stringify({ avatar_url: 'https://gitlab.avatars.test/uploads/u.png' }),
-    }));
-    const provider = createForgeProvider(remote, http)!;
-    expect(await provider.authorAvatar({ email: 'Dara@Example.com', sha: 'abc' })).toBe(
-      'https://gitlab.avatars.test/uploads/u.png',
-    );
-    expect(calls[0].url).toBe('https://gitlab.avatars.test/api/v4/avatar?email=Dara%40Example.com&size=64');
   });
 
   it('bitbucket reads the commit author user avatar', async () => {
@@ -741,29 +501,6 @@ describe('pull requests from a fork into upstream', () => {
     expect(pr.number).toBe(30);
   });
 
-  it('gitlab posts on the source project with the target project id', async () => {
-    const { http, calls } = fakeHttp((request) =>
-      request.method === 'GET'
-        ? { status: 200, body: JSON.stringify({ id: 4242 }) }
-        : { status: 201, body: JSON.stringify({ iid: 9, title: 'x', state: 'opened' }) },
-    );
-    const upstream = parseForgeRemote('git@gitlab.example.com:group/subgroup/project.git');
-    if (!upstream) throw new Error('expected a parsed remote');
-    await gitlabForgeProvider(upstream, http).createPullRequest({
-      title: 'x',
-      body: '',
-      sourceBranch: 'fix/y',
-      targetBranch: 'main',
-      draft: false,
-      sourceRepo: { owner: 'dara', repo: 'project' },
-    });
-    expect(calls[0].method).toBe('GET');
-    expect(calls[0].url).toMatch(/^https?:\/\/gitlab\.example\.com\/api\/v4\/projects\/group%2Fsubgroup%2Fproject$/);
-    expect(calls[1].method).toBe('POST');
-    expect(calls[1].url).toMatch(/^https?:\/\/gitlab\.example\.com\/api\/v4\/projects\/dara%2Fproject\/merge_requests$/);
-    expect(JSON.parse(calls[1].body ?? '{}')).toMatchObject({ source_branch: 'fix/y', target_branch: 'main', target_project_id: 4242 });
-  });
-
   it('bitbucket names the source repository', async () => {
     const { http, calls } = fakeHttp(() => ({ status: 201, body: JSON.stringify({ id: 5, title: 'x', state: 'OPEN' }) }));
     const upstream = parseForgeRemote('git@bitbucket.org:team/repo.git');
@@ -791,7 +528,7 @@ describe('pull requests from a fork into upstream', () => {
         { name: 'origin', url: 'git@github.com:dara/angkorgit.git' },
         { name: 'upstream', url: 'https://github.com/cheat2001/angkorgit.git' },
         { name: 'mirror', url: 'https://github.com/cheat2001/angkorgit' },
-        { name: 'lab', url: 'git@gitlab.com:dara/angkorgit.git' },
+        { name: 'lab', url: 'git@bitbucket.org:dara/angkorgit.git' },
         { name: 'local', url: '/tmp/repo' },
       ],
       source,
@@ -808,14 +545,10 @@ describe('declared forge hosts (issue #32)', () => {
     const core = await import('@angkorgit/core');
     core.registerForgeHosts([]);
     expect(core.parseForgeRemote('ssh://git@code.example.com:2222/group/project.git')).toBeNull();
-    core.registerForgeHosts([{ host: 'code.example.com', kind: 'gitlab' }]);
+    core.registerForgeHosts([{ host: 'code.example.com', kind: 'github' }]);
     const remote = core.parseForgeRemote('ssh://git@code.example.com:2222/group/project.git');
-    expect(remote).toMatchObject({ kind: 'gitlab', owner: 'group', repo: 'project', host: 'code.example.com' });
-    expect(core.parseForgeRemote('https://code.example.com/group/sub/project.git')).toMatchObject({
-      kind: 'gitlab',
-      owner: 'group/sub',
-      repo: 'project',
-    });
+    expect(remote).toMatchObject({ kind: 'github', owner: 'group', repo: 'project', host: 'code.example.com' });
+    expect(core.parseForgeRemote('https://code.example.com/group/sub/project.git')).toBeNull();
     core.registerForgeHosts([{ host: 'git.corp.example', kind: 'github' }]);
     expect(core.parseForgeRemote('git@git.corp.example:acme/tool.git')).toMatchObject({ kind: 'github', owner: 'acme', repo: 'tool' });
     expect(core.parseForgeRemote('ssh://git@code.example.com:2222/group/project.git')).toBeNull();
@@ -825,8 +558,8 @@ describe('declared forge hosts (issue #32)', () => {
   it('maps account providers to forge kinds and ignores unknown ones', async () => {
     const { forgeKindForProvider } = await import('@angkorgit/core');
     expect(forgeKindForProvider('github')).toBe('github');
-    expect(forgeKindForProvider('gitlab')).toBe('gitlab');
-    expect(forgeKindForProvider('gitlab-self')).toBe('gitlab');
+    expect(forgeKindForProvider('gitlab')).toBeNull();
+    expect(forgeKindForProvider('gitlab-self')).toBeNull();
     expect(forgeKindForProvider('bitbucket')).toBe('bitbucket');
     expect(forgeKindForProvider('bitbucket-server')).toBe('bitbucket-server');
     expect(forgeKindForProvider('other')).toBeNull();
@@ -834,7 +567,7 @@ describe('declared forge hosts (issue #32)', () => {
 
   it('keeps the built-in hostname rules ahead of declarations', async () => {
     const core = await import('@angkorgit/core');
-    core.registerForgeHosts([{ host: 'github.com', kind: 'gitlab' }]);
+    core.registerForgeHosts([{ host: 'github.com', kind: 'bitbucket' }]);
     expect(core.parseForgeRemote('git@github.com:acme/tool.git')?.kind).toBe('github');
     core.registerForgeHosts([]);
   });

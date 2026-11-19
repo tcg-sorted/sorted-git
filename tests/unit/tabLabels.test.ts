@@ -10,10 +10,10 @@ describe('tabLabels', () => {
 
   it('adds the nearest parent folder that tells same-named repositories apart', () => {
     const labels = tabLabels([
-      '/Users/me/clients/acme-gitlab.example.internal/payments',
+      '/Users/me/clients/acme-git.example.internal/payments',
       '/Users/me/work/1. Projects/products/thirdparty/shared-services/payments',
     ]);
-    expect(labels.get('/Users/me/clients/acme-gitlab.example.internal/payments')?.hint).toBe('acme-gitlab.example.internal');
+    expect(labels.get('/Users/me/clients/acme-git.example.internal/payments')?.hint).toBe('acme-git.example.internal');
     expect(labels.get('/Users/me/work/1. Projects/products/thirdparty/shared-services/payments')?.hint).toBe(
       'shared-services',
     );

@@ -764,7 +764,7 @@ export function CommitDetails({
             data-message-editor
             className={cn(
               'rounded-md border border-border bg-surface shadow-sm transition-colors',
-              'focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/60',
+              'focus-within:border-focus focus-within:ring-2 focus-within:ring-focus',
             )}
             onKeyDown={onEditorKeyDown}
           >
@@ -1036,7 +1036,7 @@ export function CommitDetails({
         tabIndex={0}
         aria-label="Commit files"
         onKeyDown={onFilesKeyDown}
-        className="rounded-md p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40"
+        className="rounded-md p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
       >
         <p className="mb-1 flex items-center justify-between gap-2 border-b border-border-subtle px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-muted">
           <span className="shrink-0">

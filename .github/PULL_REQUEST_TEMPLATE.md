@@ -13,5 +13,5 @@
 - [ ] New engine functions have integration tests in `tests/git_engine.rs`
 - [ ] Mutating operations go through the undo `tracked()` wrapper where undoable
 - [ ] Colors use design tokens only (no hex in components)
-- [ ] `CLAUDE.md` updated if conventions/architecture changed
-- [ ] Commits carry no trailers from coding tools (`Co-authored-by: <tool>`, `Generated with …`)
+- [ ] `CLAUDE.md` / `.claude/docs/` updated if conventions/architecture changed
+- [ ] Commits carry no trailers from coding tools (`Co-authored-by: <tool>`, `Generated with …`); `Co-authored-by: Claude` is allowed
