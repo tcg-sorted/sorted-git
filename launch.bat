@@ -2,7 +2,9 @@
 setlocal
 cd /d "%~dp0"
 
-set "EXE=apps\desktop\src-tauri\target\release\angkorgit.exe"
+set "TARGET=apps\desktop\src-tauri\target"
+if defined CARGO_TARGET_DIR set "TARGET=%CARGO_TARGET_DIR%"
+set "EXE=%TARGET%\release\angkorgit.exe"
 
 if /i "%~1"=="rebuild" goto build
 if exist "%EXE%" goto launch
