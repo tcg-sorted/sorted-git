@@ -2,27 +2,95 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - release
+  workflow_dispatch:
 
 permissions:
-  contents: write
-  actions: read
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
+  prepare:
+    name: Check the version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      updater: ${{ steps.version.outputs.updater }}
+      product: ${{ steps.version.outputs.product }}
+      asset_prefix: ${{ steps.version.outputs.asset_prefix }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read and check the version
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HAS_SIGNING_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF_NAME" != "release" ]; then
+            echo "::error::Releases are only cut from the release branch, this run is on $GITHUB_REF_NAME"
+            exit 1
+          fi
+          version=$(jq -r .version apps/desktop/src-tauri/tauri.conf.json)
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::tauri.conf.json version '$version' is not a semver version"
+            exit 1
+          fi
+          package_version=$(jq -r .version apps/desktop/package.json)
+          root_version=$(jq -r .version package.json)
+          cargo_version=$(sed -n 's/^version = "\(.*\)"$/\1/p' apps/desktop/src-tauri/Cargo.toml | head -n 1)
+          for pair in "apps/desktop/package.json:$package_version" "package.json:$root_version" "apps/desktop/src-tauri/Cargo.toml:$cargo_version"; do
+            if [ "${pair#*:}" != "$version" ]; then
+              echo "::error::${pair%%:*} says ${pair#*:} but tauri.conf.json says $version; follow the version-alignment checklist"
+              exit 1
+            fi
+          done
+          tag="v$version"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "::error::Release $tag already exists. Bump the version (see the version-alignment checklist) before merging into release."
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+            echo "::error::Tag $tag already exists. Bump the version (see the version-alignment checklist) before merging into release."
+            exit 1
+          fi
+          updater=$(jq -r '.bundle.createUpdaterArtifacts // false' apps/desktop/src-tauri/tauri.conf.json)
+          if [ "$updater" = "true" ] && [ "$HAS_SIGNING_KEY" != "true" ]; then
+            echo "::error::createUpdaterArtifacts is on but the TAURI_SIGNING_PRIVATE_KEY secret is not set; see .claude/docs/release-and-ci.md"
+            exit 1
+          fi
+          echo "updater=$updater" >> "$GITHUB_OUTPUT"
+          product=$(jq -r .productName apps/desktop/src-tauri/tauri.conf.json)
+          asset_prefix=$(printf '%s' "$product" | sed 's/[^A-Za-z0-9_-]/./g')
+          echo "product=$product" >> "$GITHUB_OUTPUT"
+          echo "asset_prefix=$asset_prefix" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Releasing $tag (updater artifacts: $updater)"
+
   build:
     name: Build ${{ matrix.platform }}
+    needs: prepare
     runs-on: ${{ matrix.platform }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - platform: macos-latest
             args: --target universal-apple-darwin
-          - platform: ubuntu-latest
+          - platform: ubuntu-22.04
             args: ''
           - platform: windows-latest
             args: ''
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      UPDATER: ${{ needs.prepare.outputs.updater }}
+      ASSET_PREFIX: ${{ needs.prepare.outputs.asset_prefix }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -47,97 +115,135 @@ jobs:
         run: |
           pnpm icons
           pnpm --filter @angkorgit/desktop exec tauri icon src-tauri/icons/icon.png
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build the bundles
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          projectPath: apps/desktop
-          tagName: ${{ github.ref_name }}
-          releaseName: 'Sorted Git ${{ github.ref_name }}'
-          releaseDraft: true
-          args: ${{ matrix.args }}
-      - name: Collect the unsigned Windows installers
-        if: runner.os == 'Windows'
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          rm -rf apps/desktop/src-tauri/target/release/bundle apps/desktop/src-tauri/target/*/release/bundle
+          pnpm tauri:build ${{ matrix.args }}
+      - name: Collect and rename the release assets
         shell: bash
         run: |
           set -euo pipefail
-          mkdir windows-unsigned
-          cp apps/desktop/src-tauri/target/release/bundle/nsis/'Sorted Git'_*_x64-setup.exe windows-unsigned/
-          cp apps/desktop/src-tauri/target/release/bundle/msi/'Sorted Git'_*_x64_en-US.msi windows-unsigned/
-          ls -l windows-unsigned
-      - name: Upload the unsigned Windows installers for SignPath
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
+          root=apps/desktop/src-tauri/target
+          out=release-assets
+          mkdir -p "$out"
+          echo "Bundles built:"
+          find "$root" -path '*/release/bundle/*' -type f \( -name '*.dmg' -o -name '*.tar.gz' -o -name '*.sig' -o -name '*.exe' -o -name '*.msi' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' \)
+          pick() {
+            local found count
+            found=$(find "$root" -path '*/release/bundle/*' -type f -name "$1")
+            count=$(printf '%s' "$found" | grep -c . || true)
+            if [ "$count" -ne 1 ]; then
+              echo "::error::Expected exactly one bundle matching $1, found $count"
+              printf '%s\n' "$found"
+              exit 1
+            fi
+            cp "$found" "$out/$2"
+          }
+          pick_updater() {
+            if [ "$UPDATER" = "true" ]; then
+              pick "$1" "$2"
+            fi
+          }
+          name=$ASSET_PREFIX
+          case "$RUNNER_OS" in
+            macOS)
+              pick '*.dmg' "${name}_${VERSION}_universal.dmg"
+              pick_updater '*.app.tar.gz' "${name}_${VERSION}_universal.app.tar.gz"
+              pick_updater '*.app.tar.gz.sig' "${name}_${VERSION}_universal.app.tar.gz.sig"
+              ;;
+            Windows)
+              pick '*-setup.exe' "${name}_${VERSION}_x64-setup.exe"
+              pick_updater '*-setup.exe.sig' "${name}_${VERSION}_x64-setup.exe.sig"
+              pick '*.msi' "${name}_${VERSION}_x64_en-US.msi"
+              pick_updater '*.msi.sig' "${name}_${VERSION}_x64_en-US.msi.sig"
+              ;;
+            Linux)
+              pick '*.AppImage' "${name}_${VERSION}_amd64.AppImage"
+              pick_updater '*.AppImage.sig' "${name}_${VERSION}_amd64.AppImage.sig"
+              pick '*.deb' "${name}_${VERSION}_amd64.deb"
+              pick_updater '*.deb.sig' "${name}_${VERSION}_amd64.deb.sig"
+              pick '*.rpm' "${name}-${VERSION}-1.x86_64.rpm"
+              pick_updater '*.rpm.sig' "${name}-${VERSION}-1.x86_64.rpm.sig"
+              ;;
+          esac
+          ls -l "$out"
+      - uses: actions/upload-artifact@v4
         with:
-          name: windows-unsigned
-          path: windows-unsigned/*
+          name: release-assets-${{ runner.os }}
+          path: release-assets/*
           if-no-files-found: error
-          retention-days: 3
+          retention-days: 7
 
-  sign-windows:
-    name: Sign the Windows installers
-    needs: build
-    runs-on: windows-latest
-    timeout-minutes: 360
+  publish:
+    name: Publish the GitHub release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TAG: ${{ github.ref_name }}
-      SIGNING_POLICY: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'test-signing' }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      PRODUCT: ${{ needs.prepare.outputs.product }}
+      UPDATER: ${{ needs.prepare.outputs.updater }}
+      ASSET_PREFIX: ${{ needs.prepare.outputs.asset_prefix }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Find the unsigned artifact
-        id: unsigned
-        shell: bash
-        run: |
-          set -euo pipefail
-          id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
-            --jq '.artifacts[] | select(.name == "windows-unsigned") | .id')
-          test -n "$id"
-          echo "artifact-id=$id" >> "$GITHUB_OUTPUT"
-      - name: Submit the signing request
-        id: signpath
-        uses: signpath/github-action-submit-signing-request@v3
+      - uses: actions/download-artifact@v4
         with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: 44482a90-340e-4e18-9931-67153e09e272
-          project-slug: angkorgit
-          signing-policy-slug: ${{ env.SIGNING_POLICY }}
-          artifact-configuration-slug: Windows_installers
-          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: 18000
-          output-artifact-directory: signed
-      - name: Check the Authenticode signatures
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $files = Get-ChildItem signed -Recurse -File | Where-Object { $_.Extension -in '.exe', '.msi' }
-          if ($files.Count -ne 2) {
-            throw "Expected the setup.exe and the .msi back from SignPath, found $($files.Count) files"
-          }
-          foreach ($file in $files) {
-            $signature = Get-AuthenticodeSignature -FilePath $file.FullName
-            if (-not $signature.SignerCertificate) {
-              throw "$($file.Name) came back without an Authenticode signature ($($signature.Status))"
-            }
-            "$($file.Name): $($signature.Status), $($signature.SignerCertificate.Subject)"
-            if ($env:SIGNING_POLICY -eq 'release-signing') {
-              if ($signature.Status -ne 'Valid') {
-                throw "$($file.Name) signature is $($signature.Status), expected Valid"
-              }
-              if (-not $signature.SignerCertificate.Subject.Contains('CN=SignPath Foundation')) {
-                throw "$($file.Name) is signed by $($signature.SignerCertificate.Subject), expected SignPath Foundation"
-              }
-            }
-          }
-          "Signing request: ${{ steps.signpath.outputs.signing-request-web-url }}"
-      - name: Collect the signed installers
-        shell: bash
+          pattern: release-assets-*
+          path: release-assets
+          merge-multiple: true
+      - name: Write latest.json
+        if: env.UPDATER == 'true'
         run: |
           set -euo pipefail
-          mkdir release-assets
-          find signed -type f \( -name '*.exe' -o -name '*.msi' \) -exec cp {} release-assets/ \;
-          ls -l release-assets
-      - name: Replace the release assets
-        shell: bash
-        run: gh release upload "$TAG" release-assets/* --clobber
+          cd release-assets
+          base="https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG"
+          entry() {
+            test -s "$1.sig"
+            jq -n --arg url "$base/$1" --rawfile sig "$1.sig" '{signature: ($sig | rtrimstr("\n")), url: $url}'
+          }
+          app=$(entry "${ASSET_PREFIX}_${VERSION}_universal.app.tar.gz")
+          nsis=$(entry "${ASSET_PREFIX}_${VERSION}_x64-setup.exe")
+          msi=$(entry "${ASSET_PREFIX}_${VERSION}_x64_en-US.msi")
+          appimage=$(entry "${ASSET_PREFIX}_${VERSION}_amd64.AppImage")
+          deb=$(entry "${ASSET_PREFIX}_${VERSION}_amd64.deb")
+          rpm=$(entry "${ASSET_PREFIX}-${VERSION}-1.x86_64.rpm")
+          jq -n \
+            --arg version "$VERSION" \
+            --arg notes "https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG" \
+            --arg pub_date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson app "$app" --argjson nsis "$nsis" --argjson msi "$msi" \
+            --argjson appimage "$appimage" --argjson deb "$deb" --argjson rpm "$rpm" \
+            '{version: $version, notes: $notes, pub_date: $pub_date, platforms: {
+              "darwin-aarch64": $app, "darwin-x86_64": $app,
+              "darwin-aarch64-app": $app, "darwin-x86_64-app": $app,
+              "windows-x86_64": $nsis, "windows-x86_64-nsis": $nsis, "windows-x86_64-msi": $msi,
+              "linux-x86_64": $appimage, "linux-x86_64-appimage": $appimage,
+              "linux-x86_64-deb": $deb, "linux-x86_64-rpm": $rpm
+            }}' > latest.json
+          jq . latest.json
+          ls -l
+      - name: Create the release
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "::error::Release $TAG appeared while this run was building; not overwriting it"
+            exit 1
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" > /dev/null 2>&1; then
+            echo "::error::Tag $TAG appeared while this run was building; not reusing it"
+            exit 1
+          fi
+          gh release create "$TAG" release-assets/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$PRODUCT $TAG" \
+            --generate-notes \
+            --latest
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,assets --jq '.url, (.assets[].name)'

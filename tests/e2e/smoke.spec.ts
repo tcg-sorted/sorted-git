@@ -588,17 +588,22 @@ test('text selection in a diff survives the right-click copy menu', async ({ pag
   await page.goto('/');
   await page.getByText('angkorgit', { exact: true }).first().click();
   await page.getByText('palette-seed.sql').first().click();
-  await page.waitForSelector('[data-diff-layer]', { timeout: 10_000 });
+  await expect(page.getByText('temple gold').first()).toBeVisible({ timeout: 10_000 });
 
   const selectRows = () =>
     page.evaluate(() => {
       const rows = [...document.querySelectorAll('[data-diff-layer] > div')];
-      const range = document.createRange();
-      range.setStartBefore(rows[2]);
-      range.setEndAfter(rows[5]);
-      const selection = window.getSelection();
-      selection?.removeAllRanges();
-      selection?.addRange(range);
+      const texts = (row: Element) => {
+        const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
+        const nodes: Text[] = [];
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (node.textContent) nodes.push(node as Text);
+        }
+        return nodes;
+      };
+      const first = texts(rows[2])[0];
+      const last = texts(rows[5]).at(-1)!;
+      window.getSelection()?.setBaseAndExtent(first, 0, last, last.length);
     });
   const selectionLength = () =>
     page.evaluate(() => window.getSelection()?.toString().trim().length ?? 0);
@@ -3307,10 +3312,12 @@ test('dragging a diff selection past the right edge pans the long lines and exte
   await expect
     .poll(() => layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0'))))
     .toBeGreaterThan(60);
-  const panned = await layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0')));
   const selected = await page.evaluate(() => window.getSelection()?.toString() ?? '');
   expect(selected.length).toBeGreaterThan(40);
   await page.mouse.move(start.x + 100, start.y, { steps: 2 });
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const panned = await layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0')));
+  expect(panned).toBeGreaterThan(60);
   await page.waitForTimeout(120);
   expect(await layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0')))).toBe(panned);
   await page.mouse.up();
@@ -3359,6 +3366,25 @@ test('long diff lines have a sticky horizontal scrollbar and support Shift+wheel
   await diff.getByRole('button', { name: 'View options', exact: true }).click();
   await page.getByRole('menuitemcheckbox', { name: 'Wrap long lines' }).click();
   await expect(scrollbar).toHaveCount(0);
+});
+
+test('the app shell never scrolls sideways when its toolbar is wider than the window', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.goto('/');
+  await page.getByText('angkorgit', { exact: true }).first().click();
+  await page.getByText('palette-seed.sql').first().click();
+  await expect(page.getByText('temple gold').first()).toBeVisible();
+  const shell = await page.evaluate(() => {
+    const root = document.getElementById('root')!;
+    const overflow = root.scrollWidth - root.clientWidth;
+    root.scrollLeft = 50;
+    const afterSet = root.scrollLeft;
+    root.scrollIntoView();
+    document.querySelector<HTMLElement>('[aria-label="Toggle terminal"]')?.scrollIntoView({ inline: 'end' });
+    return { overflow, afterSet, afterScrollIntoView: root.scrollLeft, page: document.scrollingElement?.scrollLeft ?? 0 };
+  });
+  expect(shell.overflow).toBeGreaterThan(0);
+  expect(shell).toEqual({ overflow: shell.overflow, afterSet: 0, afterScrollIntoView: 0, page: 0 });
 });
 
 test('a trackpad pan moves the long-line diff by the whole gesture without stepping back', async ({ page }) => {

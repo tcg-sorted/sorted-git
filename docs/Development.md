@@ -51,4 +51,4 @@ in `packages/core/src/ai/cliAgents.ts` and its binary to the allowlist in
 
 ## Release
 
-Tag `v*` and push: `.github/workflows/release.yml` builds macOS (universal), Windows and Linux bundles via `tauri-action` and attaches them to a draft GitHub release.
+Bump the version, then merge a PR into the `release` branch: `.github/workflows/release.yml` builds macOS (universal), Windows and Linux bundles and publishes the `v<version>` GitHub release (plus `latest.json` if the updater is re-enabled). Details in `.claude/docs/release-and-ci.md`.

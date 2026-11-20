@@ -143,7 +143,7 @@ READMEs list every file with a one-line summary.
 | Demo mode, e2e fixtures, `angkorgit-demo-*` flags | [frontend/demo-mode.md](.claude/docs/frontend/demo-mode.md) |
 | Styling, tokens, themes, contrast, layout rules | [design-system.md](.claude/docs/design-system.md) |
 | `packages/*`, folder structure | [architecture/monorepo-layout.md](.claude/docs/architecture/monorepo-layout.md) |
-| A bug that "should not happen", libgit2/WebKit/platform quirks | [gotchas/README.md](.claude/docs/gotchas/README.md) — G1…G59, grouped by area |
+| A bug that "should not happen", libgit2/WebKit/platform quirks | [gotchas/README.md](.claude/docs/gotchas/README.md) — G1…G60, grouped by area |
 | Writing or locating tests, test counts | [testing.md](.claude/docs/testing.md) |
 | Releases, version bumps, CI, signing | [release-and-ci.md](.claude/docs/release-and-ci.md) (mandatory version-alignment checklist) |
 | License, community files, GitHub repo settings | [open-source.md](.claude/docs/open-source.md) |

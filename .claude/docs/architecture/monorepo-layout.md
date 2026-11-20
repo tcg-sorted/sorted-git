@@ -135,7 +135,7 @@ angkorgit/
 │   ├── unit/                  ← vitest: graphLayout, wordDiff, conflicts (pure core logic)
 │   └── e2e/                   ← Playwright vs browser DEMO MODE (no native build needed)
 ├── scripts/generate-icons.mjs ← zero-dependency PNG icon generator
-├── .github/workflows/         ← ci.yml (typecheck/test/e2e + rust matrix), release.yml (tauri-action on v* tags
-│                                + the sign-windows SignPath job, see §10)
-└── .github/signpath/          ← artifact-configuration.xml: what SignPath signs (setup.exe + msi)
+├── .github/workflows/         ← ci.yml (typecheck/test/e2e + rust matrix), release.yml (push to the release
+│                                branch → build all platforms, publish release + latest.json, see §10)
+└── .github/signpath/          ← artifact-configuration.xml: upstream's SignPath config, unused here
 ```
