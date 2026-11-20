@@ -438,7 +438,7 @@ export function Sidebar() {
     const spec = forgeRemote ? pullRequestCheckoutSpec(forgeRemote.kind, pr) : null;
     if (!spec) {
       toast.error(
-        `This pull request cannot be checked out from AngKorGit — open it in the browser instead.`,
+        `This pull request cannot be checked out from Sorted Git — open it in the browser instead.`,
       );
       return;
     }

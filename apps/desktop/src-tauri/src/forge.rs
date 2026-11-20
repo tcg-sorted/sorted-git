@@ -55,7 +55,7 @@ fn auth_headers(
     token: &str,
     email: Option<&str>,
 ) -> AppResult<Vec<(String, String)>> {
-    let mut headers = vec![("user-agent".to_string(), "AngKorGit".to_string())];
+    let mut headers = vec![("user-agent".to_string(), "SortedGit".to_string())];
     match provider {
         "github" => {
             headers.push(("authorization".to_string(), format!("Bearer {token}")));
@@ -194,7 +194,7 @@ mod tests {
         assert!(headers
             .iter()
             .any(|(name, _)| name == "x-github-api-version"));
-        assert!(headers.contains(&("user-agent".to_string(), "AngKorGit".to_string())));
+        assert!(headers.contains(&("user-agent".to_string(), "SortedGit".to_string())));
     }
 
     #[test]

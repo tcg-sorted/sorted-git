@@ -80,7 +80,7 @@ export function WhatsNewDialog() {
         <DialogHeader>
           <DialogTitle>What's new</DialogTitle>
           <DialogDescription>
-            {version ? `You are on AngKorGit v${version}.` : 'Release notes for every AngKorGit version.'}
+            {version ? `You are on Sorted Git v${version}.` : 'Release notes for every Sorted Git version.'}
           </DialogDescription>
         </DialogHeader>
         <div className="-mx-1 max-h-[60vh] space-y-7 overflow-y-auto px-1 pb-1" data-whats-new-list>

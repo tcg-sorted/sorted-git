@@ -1,5 +1,5 @@
 @echo off
-REM angkorgit-cli
+REM sorted-git-cli
 setlocal EnableExtensions
 set "EXE=@APP@"
 if "%~1"=="" goto open_cwd
@@ -9,7 +9,7 @@ if /I "%~1"=="help" goto help
 if /I "%~1"=="open" goto open_cmd
 if /I "%~1"=="clone" goto clone_cmd
 if not exist "%~1" (
-  echo angkorgit: %~1: no such file or directory 1>&2
+  echo sorted-git: %~1: no such file or directory 1>&2
   exit /b 1
 )
 start "" "%EXE%" --open "%~f1"
@@ -24,7 +24,7 @@ if "%~2"=="" goto open_cwd
 if /I "%~2"=="-h" goto help
 if /I "%~2"=="--help" goto help
 if not exist "%~2" (
-  echo angkorgit: %~2: no such file or directory 1>&2
+  echo sorted-git: %~2: no such file or directory 1>&2
   exit /b 1
 )
 start "" "%EXE%" --open "%~f2"
@@ -46,7 +46,7 @@ goto clone_loop
 
 :clone_branch
 if "%~2"=="" (
-  echo angkorgit: clone: missing branch after %~1 1>&2
+  echo sorted-git: clone: missing branch after %~1 1>&2
   exit /b 1
 )
 set "BRANCH=%~2"
@@ -56,7 +56,7 @@ goto clone_loop
 
 :clone_run
 if "%URL%"=="" (
-  echo angkorgit: clone: missing url or owner/repo 1>&2
+  echo sorted-git: clone: missing url or owner/repo 1>&2
   goto help_err
 )
 if "%BRANCH%"=="" (
@@ -68,22 +68,22 @@ exit /b 0
 
 :help
 echo Usage:
-echo   angkorgit                            Open the current directory
-echo   angkorgit open [path]                Open the provided path
-echo   angkorgit clone [-b branch] ^<url^>    Clone the repository by url or owner/repo
+echo   sorted-git                           Open the current directory
+echo   sorted-git open [path]               Open the provided path
+echo   sorted-git clone [-b branch] ^<url^>   Clone the repository by url or owner/repo
 echo                                        ^(ex torvalds/linux^), optionally checking out
 echo                                        the branch
 echo.
-echo akg is a short alias for angkorgit
+echo sgit is a short alias for sorted-git
 exit /b 0
 
 :help_err
 echo Usage:
-echo   angkorgit                            Open the current directory
-echo   angkorgit open [path]                Open the provided path
-echo   angkorgit clone [-b branch] ^<url^>    Clone the repository by url or owner/repo
+echo   sorted-git                           Open the current directory
+echo   sorted-git open [path]               Open the provided path
+echo   sorted-git clone [-b branch] ^<url^>   Clone the repository by url or owner/repo
 echo                                        ^(ex torvalds/linux^), optionally checking out
 echo                                        the branch
 echo.
-echo akg is a short alias for angkorgit
+echo sgit is a short alias for sorted-git
 exit /b 1

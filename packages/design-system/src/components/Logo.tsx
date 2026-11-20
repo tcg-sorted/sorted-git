@@ -33,7 +33,7 @@ export function Logo({
       fill="none"
       className={className}
       role="img"
-      aria-label="AngKorGit"
+      aria-label="Sorted Git"
     >
       {animated && <style>{KEYFRAMES}</style>}
       <g

@@ -16,7 +16,7 @@
   (`bg-glass`, `backdrop-blur-glass` 20px). FOCUS RINGS ARE GREY (`ring-focus` /
   `--border-focus`), never blue: the brand reserves blue for action. The logo is the
   Sorted S monogram (design-system `Logo`, `currentColor`, stroke-draw animation); the
-  product name stays AngKorGit — do not put the SORTED wordmark in the app, it reads as a
+  product name is Sorted Git (credited as an AngKorGit fork on the welcome page) — do not put the SORTED wordmark in the app, it reads as a
   rename. App icons come from `apps/desktop/src-tauri/icons/source/` via `pnpm icons`.
 - **Accent contrast holds in every theme**: accent text (`text-primary`) ≥ 4.5:1 against
   background and surface, and the label on an accent fill (`primary-foreground` on

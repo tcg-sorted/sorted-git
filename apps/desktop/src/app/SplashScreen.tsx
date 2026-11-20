@@ -24,7 +24,7 @@ export function SplashScreen() {
         transition={{ delay: 0.7, duration: 0.2 }}
         className="text-center"
       >
-        <h1 className="font-sans text-3xl font-black tracking-tight text-foreground">AngKorGit</h1>
+        <h1 className="font-sans text-3xl font-black tracking-tight text-foreground">Sorted Git</h1>
         <p className="mt-2 text-xs text-muted">Strength. Simplicity. Craftsmanship.</p>
       </motion.div>
     </motion.div>

@@ -36,7 +36,7 @@ tccutil reset All dev.angkorgit.app
 | Platform | First launch |
 | --- | --- |
 | **Windows** | SmartScreen: **More info → Run anyway** |
-| **Linux** | AppImage: `chmod +x AngKorGit_*.AppImage`, then run — or install the `.deb` |
+| **Linux** | AppImage: `chmod +x 'Sorted Git'_*.AppImage`, then run — or install the `.deb` |
 
 After that, AngKorGit **updates itself**: every update is cryptographically
 verified (minisign) before installing, and all releases are built in public by
