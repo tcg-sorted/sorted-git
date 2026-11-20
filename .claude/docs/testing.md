@@ -33,7 +33,10 @@
   final track click landed off-screen. Fixed in the app with `overflow: clip` (G60), and
   covered by `the app shell never scrolls sideways when its toolbar is wider than the
   window` (2026-11-19).
-- **Still flaky: `dragging a diff selection past the right edge…`.** Timing-sensitive
-  (a rAF edge-pan loop driven by mouse moves). On a Windows dev machine it failed 3 of 5
-  serial runs both with and without the G60 fix (2026-11-19). In CI it has needed its
-  retry about once in ten runs. Not yet investigated.
+- **Fixed: `dragging a diff selection past the right edge…`.** It read the pan offset
+  while the edge-pan rAF loop was still running (pointer still past the edge), then moved
+  the pointer back inside and expected no further movement, so any frame that ran between
+  the read and the move failed it (119.5 vs 123 px; 2 of 5 local runs). It now moves back
+  inside, waits two frames, then reads the offset and checks it holds (2026-11-20).
+  General rule for gesture tests: take the baseline only after the gesture that should
+  stop the motion, never while the motion is still running.

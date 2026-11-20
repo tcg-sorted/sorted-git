@@ -3312,10 +3312,12 @@ test('dragging a diff selection past the right edge pans the long lines and exte
   await expect
     .poll(() => layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0'))))
     .toBeGreaterThan(60);
-  const panned = await layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0')));
   const selected = await page.evaluate(() => window.getSelection()?.toString() ?? '');
   expect(selected.length).toBeGreaterThan(40);
   await page.mouse.move(start.x + 100, start.y, { steps: 2 });
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const panned = await layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0')));
+  expect(panned).toBeGreaterThan(60);
   await page.waitForTimeout(120);
   expect(await layer.evaluate((el) => Math.abs(parseFloat(/translateX\((-?[\d.]+)px\)/.exec((el as HTMLElement).style.transform)?.[1] ?? '0')))).toBe(panned);
   await page.mouse.up();
