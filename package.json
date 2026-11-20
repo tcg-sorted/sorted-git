@@ -20,17 +20,13 @@
     "tauri:dev": "pnpm --filter @angkorgit/desktop tauri dev",
     "tauri:build": "pnpm --filter @angkorgit/desktop tauri build",
     "release:mac": "pnpm tauri:build && open apps/desktop/src-tauri/target/release/bundle/dmg",
-    "install:mac": "pkill -x angkorgit || true; sleep 1; rm -rf /Applications/AngKorGit.app && ditto apps/desktop/src-tauri/target/release/bundle/macos/AngKorGit.app /Applications/AngKorGit.app && open -a /Applications/AngKorGit.app",
+    "install:mac": "pkill -x angkorgit || true; sleep 1; rm -rf '/Applications/Sorted Git.app' && ditto 'apps/desktop/src-tauri/target/release/bundle/macos/Sorted Git.app' '/Applications/Sorted Git.app' && open -a '/Applications/Sorted Git.app'",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test -c tests/e2e/playwright.config.ts",
-    "website": "pnpm --filter @angkorgit/website dev",
-    "website:build": "pnpm --filter @angkorgit/website build",
-    "website:preview": "pnpm --filter @angkorgit/website preview",
-    "website:images": "pnpm --filter @angkorgit/website images",
     "icons": "node scripts/generate-icons.mjs"
   },
   "devDependencies": {

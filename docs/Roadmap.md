@@ -24,7 +24,7 @@ direction.
 - [x] Commit signing: SSH and GPG, driven by existing git config (commit.gpgSign, gpg.format, user.signingKey) — covers commit, amend, merge
 - [x] Pull requests: sidebar list, checkout and in-app create with reviewer selection for GitHub and Bitbucket Cloud, through the connected account; browser fallback without one
 - [x] Graph search: message text, a hash or prefix, and author all find matches in the full graph, centered and highlighted, with an n of m control; ⌘F focuses the search
-- [x] Command line: `angkorgit` / `akg` installed from Settings — open the current folder, a path, or clone by URL or owner/repo into the app
+- [x] Command line: `sorted-git` / `sgit` installed from Settings — open the current folder, a path, or clone by URL or owner/repo into the app
 - [x] Blame: a pane of file history with a Working copy row, per-hunk authors, jump to the commit, blame at or before any commit
 - [x] External editor: detected editors (VS Code, Cursor, Zed, Sublime, JetBrains, Xcode, GNOME Builder…) from the toolbar, palette and file menus
 - [x] Pull with rebase following `pull.rebase`, a merge/rebase choice per pull, and a status bar note of the last fetch

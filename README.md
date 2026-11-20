@@ -13,7 +13,6 @@
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-D97706.svg" /></a>
   <img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-374151.svg" />
   <img alt="Built with Tauri" src="https://img.shields.io/badge/built%20with-Tauri%20v2%20%2B%20Rust-D97706.svg" />
-  <a href="https://angkorgit.app/"><img alt="Website" src="https://img.shields.io/badge/website-angkorgit.app-8B5CF6.svg" /></a>
 </p>
 
 ---
@@ -24,7 +23,7 @@
 
 I use Git all day and every client I tried felt like a website wearing a coat. Slow to open, heavy on disk, a login screen before the first commit. So I wrote one. The engine is libgit2 through Rust, the window is the webview your OS already ships, and the rule for what gets in is simple: the things you do every day, done properly, and not much else.
 
-It's free, MIT licensed, and there is no account, no telemetry and no cloud. Everything on this page is on [angkorgit.app](https://angkorgit.app/) as well.
+It's free, MIT licensed, and there is no account, no telemetry and no cloud.
 
 <p align="center">
   <picture>
@@ -131,7 +130,7 @@ curl -L https://github.com/cheat2001/angkorgit/releases/download/v0.28.0/AngKorG
 curl -L https://github.com/cheat2001/angkorgit/releases/download/v0.28.0/AngKorGit_0.28.0_amd64.AppImage -o ~/Downloads/AngKorGit.AppImage && chmod +x ~/Downloads/AngKorGit.AppImage && ~/Downloads/AngKorGit.AppImage
 ```
 
-The builds aren't signed with a paid certificate, so your OS asks once on first launch. After that the app updates itself, and every update is verified with a signature before it installs. All releases are built in public by GitHub Actions from this source tree. The full first-launch walkthrough is on the [getting started page](https://angkorgit.app/docs/getting-started/).
+The builds aren't signed with a paid certificate, so your OS asks once on first launch. After that the app updates itself, and every update is verified with a signature before it installs. All releases are built in public by GitHub Actions from this source tree. The full first-launch walkthrough is on the [getting started guide](docs/Getting-Started.md).
 
 ### macOS, first launch
 
@@ -168,14 +167,6 @@ The UI runs in a plain browser on a demo dataset, no Rust toolchain needed:
 pnpm dev            # http://localhost:1420
 ```
 
-The website lives in `apps/website` (Astro, static, GitHub Pages):
-
-```bash
-pnpm website            # http://localhost:4321/
-pnpm website:images     # regenerate WebP screenshots and og.png
-pnpm website:build      # static build in apps/website/dist
-```
-
 Tests:
 
 ```bash
@@ -189,7 +180,6 @@ cd apps/desktop/src-tauri && cargo test   # git engine integration tests on real
 | Path | Contents |
 | --- | --- |
 | `apps/desktop` | The Tauri v2 desktop app, React frontend and Rust engine |
-| `apps/website` | The website (Astro, static), live at [angkorgit.app](https://angkorgit.app/), docs rendered on site |
 | `packages/core` | Domain types, graph layout, word diff, conflict parsing, forge and AI adapters |
 | `packages/design-system` | Design tokens, Tailwind preset, UI primitives, logo |
 | `docs` | Architecture, UI guidelines, development, contributing, distribution, roadmap, coding standards |

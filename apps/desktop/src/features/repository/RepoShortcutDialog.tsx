@@ -93,7 +93,7 @@ export function RepoShortcutDialog() {
     : problem === 'no_modifier'
       ? `Add ${MODIFIER_WORDS} so it cannot fire while typing.`
       : problem === 'reserved'
-        ? 'AngKorGit already uses this shortcut.'
+        ? 'Sorted Git already uses this shortcut.'
         : takenBy
           ? `Currently switches to ${repoDisplayName(takenBy, recents)}. Saving moves it here.`
           : draftId === current
@@ -108,7 +108,7 @@ export function RepoShortcutDialog() {
           <DialogTitle>Keyboard shortcut</DialogTitle>
           <DialogDescription>
             Press the keys that switch to <span className="font-medium text-foreground">{name}</span> from anywhere
-            in AngKorGit, even when it is not open.
+            in Sorted Git, even when it is not open.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">

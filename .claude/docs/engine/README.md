@@ -19,7 +19,7 @@ The engine conventions are in CLAUDE.md; the credential chain is in
 | `forge.rs` | [forge.md](forge.md) | forge API proxy: forge_request(repoPath, host, request) looks up the |
 | `proc.rs` | [proc.md](proc.md) | EVERY child process starts here: proc::hidden(program) adds |
 | `account_check.rs` | [account-check.md](account-check.md) | re-verifies a stored account token against its provider (GitHub /user |
-| `cli.rs` | [cli.md](cli.md) | `angkorgit` CLI (GitHub Desktop-shaped): bare / `open [path]` |
+| `cli.rs` | [cli.md](cli.md) | `sorted-git` CLI (GitHub Desktop-shaped): bare / `open [path]` |
 | `fonts.rs` | [fonts.md](fonts.md) | INSTALLED FONT LIST (issue #28, 2026-09-20): fonts_list() → |
 | `editors.rs` | [editors.md](editors.md) | OPEN IN EXTERNAL EDITOR (issue #18, 2026-09-12): a static |
 | `ai_cli.rs` | [ai-cli.md](ai-cli.md) | installed AI-CLI transport: detect (which_in over augmented PATH + |

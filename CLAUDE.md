@@ -20,8 +20,8 @@ craftsmanship from Cambodia 🇰🇭.
   release artifacts, now ad-hoc signed on both slices; 0.13.0 was 14 / 28, 0.12.0 was
   12 / 25 before the single-instance plugin and blame) — a single-arch build is 13 MB
   installed. (vs ~1 GB for Electron-based clients.) Re-measure
-  before quoting it: `du -sh target/universal-apple-darwin/release/bundle/macos/AngKorGit.app`
-- Styled with the company's Sorted design system: Sorted dark theme by default for new installs (14 themes total, dark + light), Sorted Blue the single accent, Sorted S monogram as the logo. The product name stays AngKorGit. Details in [design-system.md](.claude/docs/design-system.md)
+  before quoting it: `du -sh target/universal-apple-darwin/release/bundle/macos/'Sorted Git.app'`
+- Styled with the company's Sorted design system: Sorted dark theme by default for new installs (14 themes total, dark + light), Sorted Blue the single accent, Sorted S monogram as the logo. The product name is Sorted Git (install name, window title, keychain service); the code, package names and docs keep AngKorGit to credit the fork. Details in [design-system.md](.claude/docs/design-system.md)
 - Keyboard-first (⌘K palette), beginner-friendly (visual conflict resolver, confirm
   dialogs, undo/redo), performance-first (virtualized graph & diffs, 100k-commit repos stay smooth)
 
@@ -49,7 +49,6 @@ angkorgit/
 ├── apps/desktop/              ← THE app (@angkorgit/desktop)
 │   ├── src/                   ← React frontend      → .claude/docs/frontend/
 │   └── src-tauri/             ← Rust git engine     → .claude/docs/engine/
-├── apps/website/              ← marketing site (Astro 5, static, angkorgit.app)
 ├── packages/core/             ← @angkorgit/core — pure TypeScript domain (git types, graph
 │                                layout, diff, conflicts, forge adapters, AI providers)
 ├── packages/design-system/    ← @angkorgit/design-system — tokens + Radix primitives
@@ -58,8 +57,7 @@ angkorgit/
 └── .github/                   ← CI, release, SignPath config, issue/PR templates
 ```
 
-The full annotated tree (every package folder, the website's pages and copy rules,
-`packages/core` modules) is in
+The full annotated tree (every package folder, `packages/core` modules) is in
 [.claude/docs/architecture/monorepo-layout.md](.claude/docs/architecture/monorepo-layout.md).
 
 **Import aliases**: `@/` = `apps/desktop/src`; `@angkorgit/core` and
@@ -79,9 +77,6 @@ no build step for packages).
 | `pnpm tauri:build` | release bundles (.app + .dmg in `src-tauri/target/release/bundle/`) |
 | `pnpm install:mac` | copy built .app → /Applications and launch |
 | `pnpm release:mac` | build then open the dmg folder |
-| `pnpm website` | dev-server the marketing site (http://localhost:4321/) |
-| `pnpm website:build` / `pnpm website:preview` | build / preview the static site |
-| `pnpm website:images` | regenerate WebP screenshots + og.png from `docs/assets` (sharp) |
 | `pnpm icons` | regenerate the Sorted monogram app icon from `src-tauri/icons/source` (then `tauri icon` for .icns/.ico) |
 
 **Build gotchas (important):**
@@ -93,7 +88,7 @@ no build step for packages).
   releases need no `TAURI_SIGNING_PRIVATE_KEY`.
 - Root pnpm scripts must run **from repo root**; background shells don't persist `cd`.
 - Rust fmt/clippy are CI gates: `cargo fmt --check && cargo clippy --all-targets -- -D warnings`.
-- `pnpm install:mac` quits a running AngKorGit first (pkill) — a new binary copied under a
+- `pnpm install:mac` quits a running Sorted Git first (pkill) — a new binary copied under a
   running process can never match a macOS folder grant (G50), and the single-instance
   plugin would otherwise just focus the old process.
 
@@ -147,10 +142,10 @@ READMEs list every file with a one-line summary.
 | Any file in `apps/desktop/src/` | [frontend/README.md](.claude/docs/frontend/README.md) → `frontend/features/<feature>.md`, `components.md`, `shared.md`, `app-entry.md` |
 | Demo mode, e2e fixtures, `angkorgit-demo-*` flags | [frontend/demo-mode.md](.claude/docs/frontend/demo-mode.md) |
 | Styling, tokens, themes, contrast, layout rules | [design-system.md](.claude/docs/design-system.md) |
-| `packages/*`, the website, folder structure | [architecture/monorepo-layout.md](.claude/docs/architecture/monorepo-layout.md) |
-| A bug that "should not happen", libgit2/WebKit/platform quirks | [gotchas/README.md](.claude/docs/gotchas/README.md) — G1…G60, grouped by area |
+| `packages/*`, folder structure | [architecture/monorepo-layout.md](.claude/docs/architecture/monorepo-layout.md) |
+| A bug that "should not happen", libgit2/WebKit/platform quirks | [gotchas/README.md](.claude/docs/gotchas/README.md) — G1…G61, grouped by area |
 | Writing or locating tests, test counts | [testing.md](.claude/docs/testing.md) |
-| Releases, version bumps, CI, signing, website deploy | [release-and-ci.md](.claude/docs/release-and-ci.md) (mandatory version-alignment checklist) |
+| Releases, version bumps, CI, signing | [release-and-ci.md](.claude/docs/release-and-ci.md) (mandatory version-alignment checklist) |
 | License, community files, GitHub repo settings | [open-source.md](.claude/docs/open-source.md) |
 | Proposing new features | [backlog.md](.claude/docs/backlog.md) (agreed direction and parked ideas) |
 
@@ -161,7 +156,7 @@ READMEs list every file with a one-line summary.
 §11 → backlog.md · §12 → this file. A bare `GNN` is gotcha
 `.claude/docs/gotchas/gNN-*.md`.
 
-## 6. Voice & positioning (for docs/website work)
+## 6. Voice & positioning (for docs work)
 
 - Tagline: *"Everyday Git, made delightful."* Motto: *Strength. Simplicity. Craftsmanship.*
 - Compare on: size (14 MB download vs ~1 GB), speed (native libgit2), focus (25 features done well).

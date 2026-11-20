@@ -77,13 +77,14 @@ A new gotcha takes the next free number, gets its own file and a row below.
 - [G49](g49-explorer-s-select-switch-wants-backslashes-and.md) — Explorer's /select, switch wants backslashes and its own quotes
 - [G50](g50-an-unsigned-app-can-never-keep-a.md) — an unsigned .app can never keep a macOS folder permission
 - [G51](g51-macos-overlay-title-bar-the-tab-strip.md) — macOS overlay title bar: the tab strip IS the title bar
+- [G61](g61-git-bash-perl-cannot-build-openssl.md) — Git Bash's Perl cannot build the vendored OpenSSL on Windows; build in the default shell
 
 ## AI
 
 - [G22](g22-ai-settings-are-per-provider.md) — AI settings are per provider
 - [G57](g57-openai-compatible-request-parameters-differ-per-host.md) — OpenAI-compatible request parameters differ per host and model
 
-## Website (Astro)
+## Retired
 
-- [G14](g14-website-astro-svg-script-gotchas.md) — website (Astro) SVG/script gotchas
-- [G15](g15-website-astro-shiki-dual-themes.md) — website (Astro) Shiki dual themes
+- G14 and G15 described the Astro marketing website, removed from this fork on
+  2026-11-19 along with the website. Their numbers stay unused.

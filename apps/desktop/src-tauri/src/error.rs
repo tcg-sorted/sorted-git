@@ -23,7 +23,7 @@ pub enum AppError {
     #[error(
         "The {hook} hook did not finish within {seconds} seconds{}",
         if *.exit_unconfirmed {
-            ". AngKorGit could not confirm that all hook processes exited."
+            ". Sorted Git could not confirm that all hook processes exited."
         } else {
             " and was stopped."
         }
@@ -265,7 +265,7 @@ mod tests {
         assert_eq!(payload["code"], "hook_timeout");
         assert_eq!(
             payload["message"],
-            "The post-merge hook did not finish within 600 seconds. AngKorGit could not confirm that all hook processes exited."
+            "The post-merge hook did not finish within 600 seconds. Sorted Git could not confirm that all hook processes exited."
         );
         assert_eq!(payload["detail"], "installing");
     }

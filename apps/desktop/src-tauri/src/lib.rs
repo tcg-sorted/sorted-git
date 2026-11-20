@@ -267,7 +267,7 @@ pub fn run() {
             commands::file_blame,
         ])
         .build(tauri::generate_context!())
-        .expect("error while running AngKorGit");
+        .expect("error while running Sorted Git");
 
     app.run(|app, event| {
         #[cfg(target_os = "macos")]

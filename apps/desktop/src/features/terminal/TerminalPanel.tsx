@@ -58,7 +58,7 @@ function altArrowHandler(send: (data: string) => void): (event: KeyboardEvent) =
 function spawnShell(session: TerminalSession, repoPath: string): void {
   const { terminal } = session;
   if (!isTauri()) {
-    terminal.writeln('AngKorGit demo terminal — PTY available in the desktop app.');
+    terminal.writeln('Sorted Git demo terminal — PTY available in the desktop app.');
     terminal.write('$ ');
     const echo = (data: string) => {
       if (data === '\r') terminal.write('\r\n$ ');

@@ -97,7 +97,7 @@ async fn probe_github(token: &str) -> Verdict {
         .get("https://api.github.com/user")
         .header("authorization", format!("Bearer {token}"))
         .header("accept", "application/vnd.github+json")
-        .header("user-agent", "AngKorGit")
+        .header("user-agent", "SortedGit")
         .send()
         .await;
     match response {
@@ -122,7 +122,7 @@ async fn probe_bitbucket(email: &str, token: &str) -> Verdict {
     match client
         .get("https://api.bitbucket.org/2.0/user")
         .header("authorization", format!("Basic {basic}"))
-        .header("user-agent", "AngKorGit")
+        .header("user-agent", "SortedGit")
         .send()
         .await
     {

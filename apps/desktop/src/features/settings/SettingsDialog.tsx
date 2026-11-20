@@ -410,7 +410,7 @@ function CliAgentPicker() {
         />
       )}
       <p className="mt-1 text-[11px] leading-relaxed text-faint">
-        Requests run through the CLI on this machine with its own login and quota. AngKorGit stores no key and
+        Requests run through the CLI on this machine with its own login and quota. Sorted Git stores no key and
         sends nothing anywhere itself.
       </p>
     </div>
@@ -472,7 +472,7 @@ function CommitStyleCard() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted">
-              Branch prefix rules <span className="font-normal text-faint">· first match wins, applied by AngKorGit itself</span>
+              Branch prefix rules <span className="font-normal text-faint">· first match wins, applied by Sorted Git itself</span>
             </span>
             <Button
               variant="ghost"
@@ -616,7 +616,7 @@ function CliToolCard() {
     <SettingCard
       settingId="cli"
       title="Command line tool"
-      description="Open or clone a repository from the terminal as angkorgit or the short akg. Run akg --help for the full usage."
+      description="Open or clone a repository from the terminal as sorted-git or the short sgit. Run sgit --help for the full usage."
       action={
         status ? (
           <Button variant="secondary" size="sm" disabled={busy} onClick={() => void uninstall()}>
@@ -630,19 +630,19 @@ function CliToolCard() {
       }
     >
       <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-muted">
-        {`angkorgit
-angkorgit open [path]
-angkorgit clone [-b branch] <url>`}
+        {`sorted-git
+sorted-git open [path]
+sorted-git clone [-b branch] <url>`}
       </pre>
       {status && (
         <p className="mt-1 text-[11px] leading-relaxed text-faint">
           {status.path}
-          {status.aliasPath && ' · also akg'}
+          {status.aliasPath && ' · also sgit'}
         </p>
       )}
       {status && status.path.includes('/.local/bin/') && (
         <p className="mt-1 text-[11px] leading-relaxed text-muted">
-          ~/.local/bin is not on PATH in every shell. If akg is not found, add this line to your shell profile:{' '}
+          ~/.local/bin is not on PATH in every shell. If sgit is not found, add this line to your shell profile:{' '}
           <code className="rounded bg-surface-raised px-1 font-mono">export PATH="$HOME/.local/bin:$PATH"</code>
         </p>
       )}
@@ -1106,7 +1106,7 @@ export function SettingsDialog() {
             <div className="border-t border-border-subtle px-4 py-3">
               <div className="flex items-center gap-2">
                 <Logo size={18} className="text-foreground" />
-                <span className="text-xs text-faint">AngKorGit</span>
+                <span className="text-xs text-faint">Sorted Git</span>
               </div>
             </div>
           </nav>

@@ -4,7 +4,7 @@ Source: `main.tsx`, `app/`, `core/ipc.ts`, `core/demo.ts` (from §6 Frontend). [
 
 ```text
 main.tsx · app/App.tsx        ← providers, MemoryRouter, splash→welcome (or /repo when
-                                launched via `angkorgit open|clone`), ConfirmHost,
+                                launched via `sorted-git open|clone`), ConfirmHost,
                                 Toaster (bottom-left, per-type accents), zoom shortcuts
 ```
 
