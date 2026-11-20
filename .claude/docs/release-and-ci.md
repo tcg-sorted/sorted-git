@@ -21,7 +21,9 @@
      files, no `.app.tar.gz`, no `latest.json`.
   2. `build` (macos-latest `--target universal-apple-darwin`, ubuntu-22.04,
      windows-latest; fail-fast) wipes old `release/bundle` dirs restored by the
-     rust cache, runs `pnpm tauri:build`, then copies each bundle to a fixed,
+     rust cache, runs `pnpm tauri:build` in the runner's default shell (never
+     `shell: bash`: on Windows Git Bash's Perl cannot build the vendored OpenSSL,
+     G61), then copies each bundle to a fixed,
      space-free name (below) and uploads them as a workflow artifact. A step
      fails if a pattern matches zero or several bundles.
   3. `publish` merges the artifacts, writes `latest.json` itself with jq (only
