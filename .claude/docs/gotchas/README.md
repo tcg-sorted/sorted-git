@@ -62,6 +62,7 @@ A new gotcha takes the next free number, gets its own file and a row below.
 - [G52](g52-what-s-new-reads-changelog-md-at.md) — What's new reads CHANGELOG.md at build time
 - [G54](g54-webkit-never-focuses-a-clicked-button-chromium.md) — WebKit never focuses a clicked button (Chromium does), and a disabled field cannot hold focus
 - [G56](g56-a-theme-switch-must-not-run-the.md) — a theme switch must not run the hover fades
+- [G60](g60-overflow-hidden-shell-can-still-scroll.md) — an overflow: hidden app shell can still be scrolled; use overflow: clip
 
 ## Platform, desktop shell and CI
 

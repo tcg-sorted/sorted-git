@@ -3366,6 +3366,25 @@ test('long diff lines have a sticky horizontal scrollbar and support Shift+wheel
   await expect(scrollbar).toHaveCount(0);
 });
 
+test('the app shell never scrolls sideways when its toolbar is wider than the window', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.goto('/');
+  await page.getByText('angkorgit', { exact: true }).first().click();
+  await page.getByText('palette-seed.sql').first().click();
+  await expect(page.getByText('temple gold').first()).toBeVisible();
+  const shell = await page.evaluate(() => {
+    const root = document.getElementById('root')!;
+    const overflow = root.scrollWidth - root.clientWidth;
+    root.scrollLeft = 50;
+    const afterSet = root.scrollLeft;
+    root.scrollIntoView();
+    document.querySelector<HTMLElement>('[aria-label="Toggle terminal"]')?.scrollIntoView({ inline: 'end' });
+    return { overflow, afterSet, afterScrollIntoView: root.scrollLeft, page: document.scrollingElement?.scrollLeft ?? 0 };
+  });
+  expect(shell.overflow).toBeGreaterThan(0);
+  expect(shell).toEqual({ overflow: shell.overflow, afterSet: 0, afterScrollIntoView: 0, page: 0 });
+});
+
 test('a trackpad pan moves the long-line diff by the whole gesture without stepping back', async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 900 });
   await page.goto('/');
