@@ -588,17 +588,22 @@ test('text selection in a diff survives the right-click copy menu', async ({ pag
   await page.goto('/');
   await page.getByText('angkorgit', { exact: true }).first().click();
   await page.getByText('palette-seed.sql').first().click();
-  await page.waitForSelector('[data-diff-layer]', { timeout: 10_000 });
+  await expect(page.getByText('temple gold').first()).toBeVisible({ timeout: 10_000 });
 
   const selectRows = () =>
     page.evaluate(() => {
       const rows = [...document.querySelectorAll('[data-diff-layer] > div')];
-      const range = document.createRange();
-      range.setStartBefore(rows[2]);
-      range.setEndAfter(rows[5]);
-      const selection = window.getSelection();
-      selection?.removeAllRanges();
-      selection?.addRange(range);
+      const texts = (row: Element) => {
+        const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
+        const nodes: Text[] = [];
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (node.textContent) nodes.push(node as Text);
+        }
+        return nodes;
+      };
+      const first = texts(rows[2])[0];
+      const last = texts(rows[5]).at(-1)!;
+      window.getSelection()?.setBaseAndExtent(first, 0, last, last.length);
     });
   const selectionLength = () =>
     page.evaluate(() => window.getSelection()?.toString().trim().length ?? 0);

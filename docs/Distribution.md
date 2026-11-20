@@ -9,9 +9,12 @@ cannot be automated by contributors.
 1. Update the version in `apps/desktop/src-tauri/tauri.conf.json`,
    `apps/desktop/src-tauri/Cargo.toml`, and root/app `package.json`.
 2. Move `[Unreleased]` items in `CHANGELOG.md` under the new version heading.
-3. Commit, tag `vX.Y.Z`, push the tag → `.github/workflows/release.yml` builds
-   macOS (universal), Windows, and Linux bundles via `tauri-action` and attaches
-   them to a **draft** GitHub release. Review, paste the changelog section, publish.
+3. Open a PR from the bumped branch into `release` and merge it →
+   `.github/workflows/release.yml` builds macOS (universal), Windows, and Linux
+   bundles and **publishes** the `vX.Y.Z` release in `tcg-sorted/sorted-git`
+   (plus `latest.json` only if the updater is re-enabled). It refuses a version whose tag or release already exists. Edit
+   the generated notes into the house template afterwards. Full flow and the
+   one-time key setup: `.claude/docs/release-and-ci.md`.
 
 ## 2. Distribution WITHOUT paid signing (macOS and Linux; Windows is signed, see §2b)
 
@@ -65,7 +68,11 @@ always build from source. If the project later earns sponsorship, Apple
 notarization (~$99/yr) can be added — the workflow snippet lives in git
 history — purely to remove the first-launch step.
 
-## 2b. Windows code signing — SignPath Foundation (wired, test certificate first)
+## 2b. Windows code signing — SignPath Foundation (upstream only, not wired in sorted-git)
+
+The sorted-git release workflow does not run this: the SignPath project below
+belongs to upstream AngKorGit, so sorted-git ships unsigned Windows installers
+until it has its own signing setup. The rest of this section describes upstream.
 
 Issue #49: Defender's `Wacatac.C!ml` heuristic flagged the unsigned 0.20.0
 `setup.exe`, and the updater runs that same installer, so a flagged update
