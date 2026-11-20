@@ -115,15 +115,14 @@ jobs:
         run: |
           pnpm icons
           pnpm --filter @angkorgit/desktop exec tauri icon src-tauri/icons/icon.png
-      - name: Build the bundles
+      - name: Remove bundles from earlier builds
         shell: bash
+        run: rm -rf apps/desktop/src-tauri/target/release/bundle apps/desktop/src-tauri/target/*/release/bundle
+      - name: Build the bundles
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: |
-          set -euo pipefail
-          rm -rf apps/desktop/src-tauri/target/release/bundle apps/desktop/src-tauri/target/*/release/bundle
-          pnpm tauri:build ${{ matrix.args }}
+        run: pnpm tauri:build ${{ matrix.args }}
       - name: Collect and rename the release assets
         shell: bash
         run: |
